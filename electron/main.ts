@@ -1,8 +1,12 @@
 import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron'
 import * as path from 'path'
+import { fileURLToPath } from 'url'
 import { clipboardManager } from './managers/clipboard'
 import { hotkeyManager } from './managers/hotkey'
 import { storageManager } from './services/database'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 let mainWindow: BrowserWindow | null = null
 
