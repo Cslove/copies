@@ -1,0 +1,123 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.*
+.pnp.js
+
+# Production builds
+/dist
+/dist-electron
+/build
+/public/build
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Temporary folders
+tmp/
+temp/
+
+# Debug files
+debug/
+*.stackdump
+
+# Electron-specific
+release/
+out/
+*.dmg
+*.exe
+*.msi
+*.deb
+*.rpm
+*.zip
+*.tar.gz
+
+# TypeScript cache
+*.tsbuildinfo
+*.cache/
+
+# Next.js
+.next/
+out/
+
+# Nuxt.js
+.nuxt/
+dist/
+
+# Remix
+*.mjs
+
+# Vue
+.vuepress/dist
+static/.vuepress/dist
+
+# Serverless
+.serverless/
+
+# FuseBox
+.fusebox/
+
+# Parcel
+.cache
+.parcel-cache
+
+# Webpack
+webpack-stats.json
+
+# Lock files
+package-lock.json
+yarn.lock
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+*.node
+
+# Documentation
+docs/api/
+
+# ESLint
+.eslintcache
+
+# Prettier
+.prettierignore
+prettier.config.js
+prettier.config.cjs
+prettier.config.mjs
+prettier.config.ts
+prettier.config.json

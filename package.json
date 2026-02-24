@@ -1,0 +1,84 @@
+{
+  "name": "copies",
+  "version": "1.0.0",
+  "description": "智能剪贴板管理器",
+  "main": "./dist-electron/main.js",
+  "author": "Copies Team",
+  "homepage": "https://github.com/electron/electron-quick-start-typescript#readme",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && electron-builder",
+    "preview": "vite preview",
+    "electron:serve": "vite serve",
+    "electron:build": "vite build && electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps",
+    "format": "prettier --write .",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "zustand": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.3",
+    "electron": "^29.0.0",
+    "electron-builder": "^24.6.3",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.9",
+    "vite-plugin-electron": "^0.14.0",
+    "vite-plugin-electron-renderer": "^0.14.5",
+    "@types/node": "^20.5.0",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.27",
+    "tailwindcss": "^3.3.3",
+    "electron-devtools-installer": "^3.2.0",
+    "ts-node": "^10.9.2",
+    "prettier": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.45.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-react": "^7.32.2"
+  },
+  "keywords": [
+    "clipboard",
+    "manager",
+    "macos"
+  ],
+  "license": "MIT",
+  "build": {
+    "appId": "com.copies.app",
+    "productName": "Copies",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dmg"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    }
+  }
+}

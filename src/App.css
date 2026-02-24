@@ -1,0 +1,44 @@
+.app {
+  text-align: center;
+  padding: 20px;
+}
+
+.app-header {
+  margin-bottom: 20px;
+}
+
+.clipboard-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.clipboard-item {
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 5px 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.clipboard-item:hover {
+  background: #e0e0e0;
+}
+
+.timestamp {
+  font-size: 0.8em;
+  color: #666;
+  margin-top: 5px;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
