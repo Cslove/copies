@@ -1,2 +1,3 @@
 # copies
-An application that can paste multiple texts
+
+An application that can paste multiple texts.
