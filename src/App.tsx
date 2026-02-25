@@ -1,115 +1,194 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { ClipboardItemComponent } from './components/ClipboardItem'
 import { LoadingSpinner } from './components/LoadingSpinner'
 import { EmptyState } from './components/EmptyState'
 import { Footer } from './components/Footer'
-
-interface ClipboardItem {
-  id: number
-  content: string
-  content_hash: string
-  preview: string
-  is_favorite: boolean
-  is_pinned: boolean
-  created_at: number
-  updated_at: number
-  used_count: number
-}
-
-declare global {
-  interface Window {
-    electronAPI?: {
-      getClipboardItems: (limit: number, offset: number) => Promise<ClipboardItem[]>
-      saveItem: (content: string) => Promise<number>
-      deleteItem: (id: number) => Promise<boolean>
-      pasteItem: (id: number) => Promise<boolean>
-      onShowPanel: (callback: () => void) => void
-      onHidePanel: (callback: () => void) => void
-      hidePanel: () => void
-      onClipboardChange: (callback: (item: { content: string }) => void) => void
-    }
-  }
-}
+import { useDatabase } from './hooks/useDatabase'
+import { useClipboard } from './hooks/useClipboard'
+import { useHotkey } from './hooks/useHotkey'
+import { useClipboardStore } from './stores/clipboardStore'
 
 function App() {
-  const [clipboardItems, setClipboardItems] = useState<ClipboardItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const {
+    items,
+    filteredItems,
+    isLoading,
+    searchQuery,
+    showFavoritesOnly,
+    showPinnedOnly,
+    setItems,
+    setSearchQuery,
+    toggleFavoritesOnly,
+    togglePinnedOnly,
+    deleteItem: storeDeleteItem,
+    updateItem: storeUpdateItem,
+  } = useClipboardStore()
 
+  const { loadItems, deleteItem, updateItem } = useDatabase()
+  const { pasteItem } = useClipboard()
+  const { onShowPanel, onHidePanel } = useHotkey()
+
+  // 初始化加载
   useEffect(() => {
-    // 检查是否在 Electron 环境中
-    if (window.electronAPI) {
-      loadClipboardItems()
-    } else {
-      // 开发环境下的模拟数据
-      setClipboardItems([
-        {
-          id: 1,
-          content: '这是一条测试剪贴板内容',
-          content_hash: 'test1',
-          preview: '这是一条测试剪...',
-          is_favorite: false,
-          is_pinned: false,
-          created_at: Date.now(),
-          updated_at: Date.now(),
-          used_count: 1,
-        },
-        {
-          id: 2,
-          content: 'Hello, World!',
-          content_hash: 'test2',
-          preview: 'Hello, World!',
-          is_favorite: false,
-          is_pinned: false,
-          created_at: Date.now() - 60000,
-          updated_at: Date.now() - 60000,
-          used_count: 1,
-        },
-      ])
-      setIsLoading(false)
+    const init = async () => {
+      const loadedItems = await loadItems()
+      setItems(loadedItems)
     }
-  }, [])
+    init()
+  }, [loadItems, setItems])
 
-  const loadClipboardItems = async () => {
-    try {
-      const items = await window.electronAPI!.getClipboardItems(50, 0)
-      setClipboardItems(items)
-    } catch (error) {
-      console.error('Failed to load clipboard items:', error)
-    } finally {
-      setIsLoading(false)
+  // 监听面板显示事件
+  useEffect(() => {
+    const cleanup = onShowPanel(() => {
+      // 面板显示时刷新数据
+      loadItems()
+    })
+    return cleanup
+  }, [onShowPanel, loadItems])
+
+  // 监听面板隐藏事件
+  useEffect(() => {
+    const cleanup = onHidePanel(() => {
+      // 面板隐藏时可以执行一些清理操作
+    })
+    return cleanup
+  }, [onHidePanel])
+
+  // 处理搜索
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  // 处理点击项目（粘贴）
+  const handleItemClick = async (id: number) => {
+    const success = await pasteItem(id)
+    if (success) {
+      console.log(`Item ${id} pasted successfully`)
+    } else {
+      console.error(`Failed to paste item ${id}`)
     }
   }
+
+  // 处理删除项目
+  const handleDeleteItem = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const success = await deleteItem(id)
+    if (success) {
+      storeDeleteItem(id)
+    }
+  }
+
+  // 处理收藏/取消收藏
+  const handleToggleFavorite = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const item = items.find(item => item.id === id)
+    if (item) {
+      const success = await updateItem(id, { is_favorite: !item.is_favorite })
+      if (success) {
+        storeUpdateItem(id, { is_favorite: !item.is_favorite })
+      }
+    }
+  }
+
+  // 处理置顶/取消置顶
+  const handleTogglePin = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const item = items.find(item => item.id === id)
+    if (item) {
+      const success = await updateItem(id, { is_pinned: !item.is_pinned })
+      if (success) {
+        storeUpdateItem(id, { is_pinned: !item.is_pinned })
+      }
+    }
+  }
+
+  // 获取要显示的项目列表
+  const displayItems = searchQuery || showFavoritesOnly || showPinnedOnly ? filteredItems : items
 
   return (
     <div className="min-h-screen bg-linear-to-br from-purple-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 space-y-6">
-        <header className="text-center pb-2 border-b border-purple-100">
+        {/* 头部 */}
+        <header className="flex items-center justify-between pb-2 border-b border-purple-100">
           <h1 className="text-xl font-bold text-purple-800">Copies</h1>
+          <div className="flex space-x-2">
+            <button
+              onClick={toggleFavoritesOnly}
+              className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                showFavoritesOnly
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+              }`}
+            >
+              ⭐ 收藏
+            </button>
+            <button
+              onClick={togglePinnedOnly}
+              className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                showPinnedOnly
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+              }`}
+            >
+              📌 置顶
+            </button>
+          </div>
         </header>
 
+        {/* 搜索栏 */}
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="搜索剪贴板内容..."
+            value={searchQuery}
+            onChange={handleSearch}
+            className="w-full px-4 py-2 text-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* 主内容区域 */}
         <main>
           {isLoading ? (
             <LoadingSpinner />
           ) : (
             <div className="space-y-3 max-h-125 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-200 scrollbar-track-transparent">
-              {clipboardItems.length > 0 ? (
-                clipboardItems.map(item => (
+              {displayItems.length > 0 ? (
+                displayItems.map(item => (
                   <ClipboardItemComponent
                     key={item.id}
                     item={item}
-                    onClick={(id) => {
-                      // 处理点击事件
-                      console.log(`Item ${id} clicked`)
-                    }}
+                    onClick={handleItemClick}
+                    onDelete={handleDeleteItem}
+                    onToggleFavorite={handleToggleFavorite}
+                    onTogglePin={handleTogglePin}
                   />
                 ))
               ) : (
-                <EmptyState />
+                <EmptyState
+                  message={
+                    searchQuery
+                      ? '未找到匹配的内容'
+                      : showFavoritesOnly
+                        ? '暂无收藏内容'
+                        : showPinnedOnly
+                          ? '暂无置顶内容'
+                          : '暂无剪贴板历史'
+                  }
+                />
               )}
             </div>
           )}
         </main>
 
+        {/* 页脚 */}
         <Footer />
       </div>
     </div>

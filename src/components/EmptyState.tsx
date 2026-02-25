@@ -2,7 +2,7 @@ interface EmptyStateProps {
   message?: string
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({ message = "暂无剪贴板历史" }) => {
+export const EmptyState: React.FC<EmptyStateProps> = ({ message = '暂无剪贴板历史' }) => {
   return (
     <div className="text-center py-10 text-purple-400">
       <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">

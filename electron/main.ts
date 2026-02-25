@@ -42,13 +42,16 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // 初始化数据库
+  storageManager.init()
+
   createWindow()
 
   // 初始化剪贴板管理器
   clipboardManager.startWatching()
 
-  // 注册全局快捷键
-  hotkeyManager.registerGlobalShortcuts()
+  // 注册全局快捷键，传递 mainWindow 用于显示/隐藏面板
+  hotkeyManager.registerGlobalShortcuts(mainWindow)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -58,9 +61,26 @@ app.whenReady().then(() => {
 app.on('will-quit', () => {
   globalShortcut.unregisterAll()
   clipboardManager.stopWatching()
+  storageManager.close()
 })
 
 // IPC 事件处理
+ipcMain.handle('panel:show', async () => {
+  if (mainWindow) {
+    mainWindow.show()
+    mainWindow.center()
+    mainWindow.focus()
+  }
+  return true
+})
+
+ipcMain.handle('panel:hide', async () => {
+  if (mainWindow) {
+    mainWindow.hide()
+  }
+  return true
+})
+
 ipcMain.handle('clipboard:getItems', async (_, limit: number = 50, offset: number = 0) => {
   return await storageManager.getItems(limit, offset)
 })
@@ -73,13 +93,34 @@ ipcMain.handle('clipboard:deleteItem', async (_, id: number) => {
   return await storageManager.deleteItem(id)
 })
 
+ipcMain.handle('clipboard:updateItem', async (_, id: number, updates: Record<string, unknown>) => {
+  return await storageManager.updateItem(id, updates)
+})
+
+ipcMain.handle('clipboard:searchItems', async (_, query: string, limit: number = 50) => {
+  return await storageManager.searchItems(query, limit)
+})
+
+ipcMain.handle('clipboard:getFavorites', async () => {
+  return await storageManager.getFavorites()
+})
+
+ipcMain.handle('clipboard:getStats', async () => {
+  return await storageManager.getStats()
+})
+
+ipcMain.handle('clipboard:clearAllItems', async () => {
+  return await storageManager.clearAllItems()
+})
+
 ipcMain.handle('clipboard:pasteItem', async (_, id: number) => {
   const item = await storageManager.getItemById(id)
   if (item) {
     clipboardManager.writeToClipboard(item.content)
-    // 注意：在实际实现中，我们需要使用其他方式来模拟粘贴
-    // 由于没有 robotjs，我们可以通知前端界面隐藏并提示用户按 Cmd+V
-    // 或者使用其他自动化库
+    // 粘贴成功后隐藏面板
+    if (mainWindow && mainWindow.isVisible()) {
+      mainWindow.hide()
+    }
     return true
   }
   return false
