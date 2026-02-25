@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
-import './App.css'
+import { ClipboardItemComponent } from './components/ClipboardItem'
+import { LoadingSpinner } from './components/LoadingSpinner'
+import { EmptyState } from './components/EmptyState'
+import { Footer } from './components/Footer'
 
 interface ClipboardItem {
   id: number
@@ -78,28 +81,37 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>Copies - 智能剪贴板管理器</h1>
-      </header>
-      <main className="app-main">
-        {isLoading ? (
-          <div className="loading">加载中...</div>
-        ) : (
-          <div className="clipboard-list">
-            {clipboardItems.length > 0 ? (
-              clipboardItems.map(item => (
-                <div key={item.id} className="clipboard-item">
-                  <div className="content">{item.preview}</div>
-                  <div className="timestamp">{new Date(item.created_at).toLocaleString()}</div>
-                </div>
-              ))
-            ) : (
-              <div className="empty-state">暂无剪贴板历史</div>
-            )}
-          </div>
-        )}
-      </main>
+    <div className="min-h-screen bg-linear-to-br from-purple-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 space-y-6">
+        <header className="text-center pb-2 border-b border-purple-100">
+          <h1 className="text-xl font-bold text-purple-800">Copies</h1>
+        </header>
+
+        <main>
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <div className="space-y-3 max-h-125 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-200 scrollbar-track-transparent">
+              {clipboardItems.length > 0 ? (
+                clipboardItems.map(item => (
+                  <ClipboardItemComponent
+                    key={item.id}
+                    item={item}
+                    onClick={(id) => {
+                      // 处理点击事件
+                      console.log(`Item ${id} clicked`)
+                    }}
+                  />
+                ))
+              ) : (
+                <EmptyState />
+              )}
+            </div>
+          )}
+        </main>
+
+        <Footer />
+      </div>
     </div>
   )
 }

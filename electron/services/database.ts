@@ -51,7 +51,7 @@ class StorageManager {
       updated_at: now,
       used_count: 1,
     }
-
+    console.log('Saving new item with content', newItem)
     this.items.set(this.nextId, newItem)
     const savedId = this.nextId
     this.nextId++
