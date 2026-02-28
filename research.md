@@ -40,7 +40,7 @@ Copies 是一款 macOS 平台的智能剪贴板管理器，核心解决用户在
 ### 2.3 技术栈明细
 
 - **前端 (Web)**
-  - UI 框架: React 18 + TypeScript
+  - UI 框架: React 19 + TypeScript
   - 状态管理: Zustand
   - 样式方案: Tailwind CSS
   - 构建工具: Vite + Electron
@@ -49,7 +49,7 @@ Copies 是一款 macOS 平台的智能剪贴板管理器，核心解决用户在
   - 框架: Electron
   - 剪贴板: clipboard 或 electron-clipboard-watcher
   - 全局快捷键: electron-global-shortcut
-  - 存储: better-sqlite3
+  - 存储: JSON 文件存储
   - 窗口管理: BrowserWindow API
 
 ---
@@ -73,8 +73,7 @@ Copies 是一款 macOS 平台的智能剪贴板管理器，核心解决用户在
 |                        主进程层 (Node.js)                            |
 |  +--------------+  +--------------+  +--------------+                |
 |  | Clipboard    |  | Hotkey       |  | Storage      |                |
-|  | Manager      |  | Manager      |  | Manager      |                |
-|  |              |  |              |  | (SQLite)     |                |
+|  | Manager      |  | Manager      |  | (JSON File)  |                |
 |  +--------------+  +--------------+  +--------------+                |
 +------+-+---------------+-+---------------+-+-------------------------+
 |                        渲染进程层 (WebView)                          |
@@ -93,7 +92,7 @@ Copies 是一款 macOS 平台的智能剪贴板管理器，核心解决用户在
 | ------------------ | ---------------------------------- | --------------------------------------------------------- |
 | `clipboardManager` | 监听系统剪贴板变化、读写剪贴板内容 | `getClipboard()`, `setClipboard(text)`, `startWatching()` |
 | `hotkeyManager`    | 注册/注销全局快捷键、触发事件      | `register()`, `unregister()`, `onChange()`                |
-| `storageManager`   | SQLite 数据库操作、CRUD            | `init()`, `save()`, `getAll()`, `delete()`                |
+| `storageManager`   | JSON 文件数据操作、CRUD            | `init()`, `save()`, `getAll()`, `delete()`                |
 | `windowManager`    | 窗口控制（显示/隐藏/置顶）         | `show()`, `hide()`, `toggle()`, `setPosition()`           |
 
 #### 3.2.2 渲染进程模块
@@ -129,7 +128,7 @@ Copies 是一款 macOS 平台的智能剪贴板管理器，核心解决用户在
 |  Renderer: 调用 ipcRenderer.invoke('paste')    |
 |         |                                       |
 |         v                                       |
-|  Node.js: 读取数据库 -> 写入系统剪贴板 -> 模拟 Cmd+V |
+|  Node.js: 读取 JSON 文件 -> 写入系统剪贴板 -> 模拟 Cmd+V |
 |         |                                       |
 |         v                                       |
 |  目标应用: 收到粘贴命令                          |
@@ -176,7 +175,7 @@ copies/
 │   ├── managers/
 │   │   ├── clipboard.ts          # 剪贴板管理
 │   │   ├── hotkey.ts             # 快捷键管理
-│   │   ├── storage.ts            # 存储管理 (SQLite)
+│   │   ├── storage.ts            # 存储管理 (JSON File)
 │   │   └── window.ts             # 窗口管理
 │   └── services/
 │       └── database.ts            # 数据库服务
@@ -209,8 +208,8 @@ copies/
 | `electron/preload.ts`            | 预加载脚本，通过 contextBridge 暴露 API   |
 | `electron/managers/clipboard.ts` | 使用 clipboard 库读写系统剪贴板           |
 | `electron/managers/hotkey.ts`    | 使用 global-shortcut 注册快捷键           |
-| `electron/managers/storage.ts`   | SQLite CRUD 操作                          |
-| `electron/services/database.ts`  | better-sqlite3 数据库初始化               |
+| `electron/managers/storage.ts`   | JSON 文件 CRUD 操作                       |
+| `electron/services/database.ts`  | JSON 文件初始化和管理                     |
 
 ---
 
@@ -223,7 +222,7 @@ copies/
 3. 与上次记录对比:
    - 相同 -> 无操作
    - 不同 -> 新内容入队 (去重 + 长度限制)
-4. 新内容存储到 SQLite
+4. 新内容存储到 JSON 文件
 5. 通过 IPC 通知渲染进程更新 UI
 
 **技术要点：**
@@ -264,7 +263,7 @@ copies/
 
 1. 用户点击某条历史记录
 2. 渲染进程调用 `ipcRenderer.invoke('paste', itemId)`
-3. Node.js: 读取数据库内容 -> 写入系统剪贴板
+3. Node.js: 读取 JSON 文件内容 -> 写入系统剪贴板
 4. Node.js: 模拟 Cmd+V 按键 (使用 `robotjs` 或 `enigo`)
 5. 隐藏面板
 6. 目标应用收到粘贴命令
@@ -277,25 +276,25 @@ copies/
 
 ### 5.4 数据持久化设计
 
-```sql
--- SQLite 表结构设计
+```javascript
+// JSON 文件结构设计
 
--- 剪贴历史表
-CREATE TABLE clipboard_items (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    content     TEXT NOT NULL,
-    content_hash VARCHAR(64) NOT NULL,
-    preview     TEXT,
-    is_favorite BOOLEAN DEFAULT 0,
-    is_pinned   BOOLEAN DEFAULT 0,
-    created_at  INTEGER NOT NULL,
-    updated_at  INTEGER NOT NULL,
-    used_count  INTEGER DEFAULT 0
-);
-
--- 索引优化
-CREATE INDEX idx_created_at ON clipboard_items(created_at DESC);
-CREATE INDEX idx_favorite ON clipboard_items(is_favorite);
+// 剪贴历史数据结构
+{
+  "clipboard_items": [
+    {
+      "id": 1,
+      "content": "示例剪贴板内容",
+      "content_hash": "sha256哈希值",
+      "preview": "内容预览",
+      "is_favorite": false,
+      "is_pinned": false,
+      "created_at": 1678886400000,
+      "updated_at": 1678886400000,
+      "used_count": 0
+    }
+  ]
+}
 ```
 
 ---
@@ -423,7 +422,7 @@ declare global {
 
 1. 安装 Electron 脚手架工具
 2. 配置开发环境（Node.js 18+）
-3. 初始化项目：`npm create electron-vite@latest copies -- --template react-ts`
+3. 初始化项目：`npm create electron-vite@latest copies -- --template react-ts`，确保所有核心依赖都使用最新版本
 4. 验证空项目能正常运行
 
 **验证标准：**
@@ -435,8 +434,8 @@ declare global {
 
 **任务：**
 
-1. 配置 package.json 依赖（electron, better-sqlite3, clipboard, robotjs）
-2. 实现 `electron/services/database.ts` - SQLite 初始化和基础 CRUD
+1. 配置 package.json 依赖（electron, fs-extra, clipboard, robotjs）
+2. 实现 `electron/services/database.ts` - JSON 文件初始化和基础 CRUD
 3. 实现 `electron/managers/clipboard.ts` - 剪贴板读写功能
 4. 实现 `electron/managers/hotkey.ts` - 快捷键注册
 5. 实现 `electron/preload.ts` - API 暴露
@@ -444,7 +443,7 @@ declare global {
 **验证标准：**
 
 - Node.js 测试能读写系统剪贴板
-- SQLite 数据库能正常创建和读写
+- JSON 文件能正常创建和读写
 - 快捷键能正确触发事件
 
 ### 阶段三：前后端联调 (Day 3)
@@ -468,7 +467,7 @@ declare global {
 **任务：**
 
 1. 实现剪贴板轮询监听
-2. 实现内容去重和存储
+2. 实现内容去重和存储到 JSON 文件
 3. 实现渲染进程列表展示
 4. 实现新增、编辑、删除功能
 
@@ -522,3 +521,5 @@ declare global {
 - 应用能正常安装运行
 - 无 Dock 图标（菜单栏模式）
 - 功能完整可用
+
+--- End of content ---
