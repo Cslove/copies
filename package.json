@@ -18,15 +18,13 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "better-sqlite3": "^12.6.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "zustand": "^5.0.11"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "^9.18.0",
     "@tailwindcss/postcss": "^4.2.1",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.15.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -37,7 +35,7 @@
     "electron": "^40.6.0",
     "electron-builder": "^26.8.1",
     "electron-devtools-installer": "^4.0.0",
-    "eslint": "^10.0.2",
+    "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",

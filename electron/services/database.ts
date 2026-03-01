@@ -1,6 +1,6 @@
-import Database from 'better-sqlite3'
 import * as path from 'path'
 import * as crypto from 'crypto'
+import * as fs from 'fs'
 import { app } from 'electron'
 
 interface ClipboardItem {
@@ -15,99 +15,112 @@ interface ClipboardItem {
   used_count: number
 }
 
+interface ClipboardData {
+  clipboard_items: ClipboardItem[]
+}
+
 class StorageManager {
-  private db: Database.Database | null = null
-  private dbPath: string
+  private dataPath: string
+  private data: ClipboardData
+  private nextId: number
 
   constructor() {
     // 获取用户数据目录
     const userDataPath = app.getPath('userData')
-    this.dbPath = path.join(userDataPath, 'clipboard.db')
+    this.dataPath = path.join(userDataPath, 'clipboard_data.json')
+    this.data = { clipboard_items: [] }
+    this.nextId = 1
   }
 
   public init(): void {
     try {
       // 确保目录存在
-      import('fs').then(fs => {
-        const userDataPath = app.getPath('userData')
-        if (!fs.existsSync(userDataPath)) {
-          fs.mkdirSync(userDataPath, { recursive: true })
-        }
-      })
+      const userDataPath = app.getPath('userData')
+      if (!fs.existsSync(userDataPath)) {
+        fs.mkdirSync(userDataPath, { recursive: true })
+      }
 
-      this.db = new Database(this.dbPath)
-      this.createTables()
-      this.createIndexes()
-      console.log('SQLite database initialized at:', this.dbPath)
+      // 如果文件存在，加载数据
+      if (fs.existsSync(this.dataPath)) {
+        this.loadData()
+      } else {
+        // 创建新文件
+        this.saveData()
+      }
+
+      // 计算下一个 ID
+      if (this.data.clipboard_items.length > 0) {
+        const maxId = Math.max(...this.data.clipboard_items.map(item => item.id))
+        this.nextId = maxId + 1
+      }
+
+      console.log('JSON storage initialized at:', this.dataPath)
     } catch (error) {
-      console.error('Failed to initialize database:', error)
+      console.error('Failed to initialize storage:', error)
       throw error
     }
   }
 
-  private createTables(): void {
-    if (!this.db) return
-
-    this.db.exec(`
-      CREATE TABLE IF NOT EXISTS clipboard_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        content TEXT NOT NULL,
-        content_hash VARCHAR(64) NOT NULL UNIQUE,
-        preview TEXT,
-        is_favorite BOOLEAN DEFAULT 0,
-        is_pinned BOOLEAN DEFAULT 0,
-        created_at INTEGER NOT NULL,
-        updated_at INTEGER NOT NULL,
-        used_count INTEGER DEFAULT 0
-      )
-    `)
+  private loadData(): void {
+    try {
+      const content = fs.readFileSync(this.dataPath, 'utf-8')
+      this.data = JSON.parse(content) as ClipboardData
+      
+      // 验证数据结构
+      if (!Array.isArray(this.data.clipboard_items)) {
+        console.warn('Invalid data structure, resetting')
+        this.data = { clipboard_items: [] }
+      }
+    } catch (error) {
+      console.error('Error loading data:', error)
+      this.data = { clipboard_items: [] }
+    }
   }
 
-  private createIndexes(): void {
-    if (!this.db) return
-
-    // 创建索引以提高查询性能
-    this.db.exec(`
-      CREATE INDEX IF NOT EXISTS idx_created_at ON clipboard_items(created_at DESC);
-      CREATE INDEX IF NOT EXISTS idx_favorite ON clipboard_items(is_favorite);
-      CREATE INDEX IF NOT EXISTS idx_pinned ON clipboard_items(is_pinned);
-      CREATE INDEX IF NOT EXISTS idx_content_hash ON clipboard_items(content_hash);
-    `)
+  private saveData(): void {
+    try {
+      fs.writeFileSync(this.dataPath, JSON.stringify(this.data, null, 2), 'utf-8')
+    } catch (error) {
+      console.error('Error saving data:', error)
+      throw error
+    }
   }
 
   public async saveItem(content: string): Promise<number> {
-    if (!this.db) {
-      throw new Error('Database not initialized')
-    }
-
     const contentHash = this.generateHash(content)
     const preview = this.generatePreview(content)
     const now = Date.now()
 
     try {
       // 检查是否已存在相同内容
-      const existingItem = this.db
-        .prepare('SELECT id, used_count FROM clipboard_items WHERE content_hash = ?')
-        .get(contentHash) as { id: number; used_count: number } | undefined
+      const existingItem = this.data.clipboard_items.find(
+        item => item.content_hash === contentHash
+      )
 
       if (existingItem) {
         // 如果已存在，更新使用次数和时间戳
-        this.db
-          .prepare(
-            'UPDATE clipboard_items SET used_count = used_count + 1, updated_at = ? WHERE id = ?'
-          )
-          .run(now, existingItem.id)
+        existingItem.used_count += 1
+        existingItem.updated_at = now
+        this.saveData()
         return existingItem.id
       }
 
       // 创建新项目
-      const result = this.db
-        .prepare(
-          'INSERT INTO clipboard_items (content, content_hash, preview, created_at, updated_at, used_count) VALUES (?, ?, ?, ?, ?, ?)'
-        )
-        .run(content, contentHash, preview, now, now, 1)
+      const newItem: ClipboardItem = {
+        id: this.nextId++,
+        content,
+        content_hash: contentHash,
+        preview,
+        is_favorite: false,
+        is_pinned: false,
+        created_at: now,
+        updated_at: now,
+        used_count: 1,
+      }
 
-      return result.lastInsertRowid as number
+      this.data.clipboard_items.unshift(newItem)
+      this.saveData()
+      return newItem.id
     } catch (error) {
       console.error('Error saving item:', error)
       throw error
@@ -115,12 +128,8 @@ class StorageManager {
   }
 
   public async getItemById(id: number): Promise<ClipboardItem | null> {
-    if (!this.db) {
-      throw new Error('Database not initialized')
-    }
-
     try {
-      const item = this.db.prepare('SELECT * FROM clipboard_items WHERE id = ?').get(id) as ClipboardItem | undefined
+      const item = this.data.clipboard_items.find(item => item.id === id)
       return item || null
     } catch (error) {
       console.error('Error getting item by id:', error)
@@ -129,18 +138,17 @@ class StorageManager {
   }
 
   public async getItems(limit: number = 50, offset: number = 0): Promise<ClipboardItem[]> {
-    if (!this.db) {
-      throw new Error('Database not initialized')
-    }
-
     try {
-      const items = this.db
-        .prepare(
-          'SELECT * FROM clipboard_items ORDER BY is_pinned DESC, created_at DESC LIMIT ? OFFSET ?'
-        )
-        .all(limit, offset) as ClipboardItem[]
-
-      return items
+      // 按照置顶状态和创建时间排序
+      const sortedItems = [...this.data.clipboard_items].sort((a, b) => {
+        // 置顶的排在前面
+        if (a.is_pinned !== b.is_pinned) {
+          return b.is_pinned ? 1 : -1
+        }
+        // 创建时间降序
+        return b.created_at - a.created_at
+      })
+      return sortedItems.slice(offset, offset + limit)
     } catch (error) {
       console.error('Error getting items:', error)
       throw error
@@ -148,16 +156,13 @@ class StorageManager {
   }
 
   public async getAllItems(): Promise<ClipboardItem[]> {
-    if (!this.db) {
-      throw new Error('Database not initialized')
-    }
-
     try {
-      const items = this.db
-        .prepare('SELECT * FROM clipboard_items ORDER BY is_pinned DESC, created_at DESC')
-        .all() as ClipboardItem[]
-
-      return items
+      return [...this.data.clipboard_items].sort((a, b) => {
+        if (a.is_pinned !== b.is_pinned) {
+          return b.is_pinned ? 1 : -1
+        }
+        return b.created_at - a.created_at
+      })
     } catch (error) {
       console.error('Error getting all items:', error)
       throw error
@@ -165,13 +170,16 @@ class StorageManager {
   }
 
   public async deleteItem(id: number): Promise<boolean> {
-    if (!this.db) {
-      throw new Error('Database not initialized')
-    }
-
     try {
-      const result = this.db.prepare('DELETE FROM clipboard_items WHERE id = ?').run(id)
-      return result.changes > 0
+      const initialLength = this.data.clipboard_items.length
+      this.data.clipboard_items = this.data.clipboard_items.filter(item => item.id !== id)
+      const deleted = this.data.clipboard_items.length < initialLength
+      
+      if (deleted) {
+        this.saveData()
+      }
+      
+      return deleted
     } catch (error) {
       console.error('Error deleting item:', error)
       throw error
@@ -179,40 +187,31 @@ class StorageManager {
   }
 
   public async updateItem(id: number, updates: Partial<ClipboardItem>): Promise<boolean> {
-    if (!this.db) {
-      throw new Error('Database not initialized')
-    }
-
     try {
-      const setClauses: string[] = []
-      const values: (string | number | boolean | Date)[] = []
+      const item = this.data.clipboard_items.find(item => item.id === id)
+      
+      if (!item) {
+        return false
+      }
 
+      // 更新字段
       if (updates.content !== undefined) {
-        setClauses.push('content = ?')
-        values.push(updates.content)
+        item.content = updates.content
       }
       if (updates.preview !== undefined) {
-        setClauses.push('preview = ?')
-        values.push(updates.preview)
+        item.preview = updates.preview
       }
       if (updates.is_favorite !== undefined) {
-        setClauses.push('is_favorite = ?')
-        values.push(updates.is_favorite ? 1 : 0)
+        item.is_favorite = updates.is_favorite
       }
       if (updates.is_pinned !== undefined) {
-        setClauses.push('is_pinned = ?')
-        values.push(updates.is_pinned ? 1 : 0)
+        item.is_pinned = updates.is_pinned
       }
-
-      setClauses.push('updated_at = ?')
-      values.push(Date.now())
-
-      values.push(id)
-
-      const query = `UPDATE clipboard_items SET ${setClauses.join(', ')} WHERE id = ?`
-      const result = this.db.prepare(query).run(...values)
-
-      return result.changes > 0
+      
+      item.updated_at = Date.now()
+      this.saveData()
+      
+      return true
     } catch (error) {
       console.error('Error updating item:', error)
       throw error
@@ -220,12 +219,10 @@ class StorageManager {
   }
 
   public async clearAllItems(): Promise<boolean> {
-    if (!this.db) {
-      throw new Error('Database not initialized')
-    }
-
     try {
-      this.db.prepare('DELETE FROM clipboard_items').run()
+      this.data.clipboard_items = []
+      this.nextId = 1
+      this.saveData()
       return true
     } catch (error) {
       console.error('Error clearing all items:', error)
@@ -234,17 +231,23 @@ class StorageManager {
   }
 
   public async searchItems(query: string, limit: number = 50): Promise<ClipboardItem[]> {
-    if (!this.db) {
-      throw new Error('Database not initialized')
-    }
-
     try {
-      const searchQuery = `%${query.toLowerCase()}%`
-      const items = this.db
-        .prepare(
-          'SELECT * FROM clipboard_items WHERE LOWER(content) LIKE ? OR LOWER(preview) LIKE ? ORDER BY used_count DESC, created_at DESC LIMIT ?'
+      const lowerQuery = query.toLowerCase()
+      const items = this.data.clipboard_items
+        .filter(
+          item =>
+            item.content.toLowerCase().includes(lowerQuery) ||
+            item.preview.toLowerCase().includes(lowerQuery)
         )
-        .all(searchQuery, searchQuery, limit) as ClipboardItem[]
+        .sort((a, b) => {
+          // 先按使用次数降序
+          if (b.used_count !== a.used_count) {
+            return b.used_count - a.used_count
+          }
+          // 再按创建时间降序
+          return b.created_at - a.created_at
+        })
+        .slice(0, limit)
 
       return items
     } catch (error) {
@@ -254,15 +257,11 @@ class StorageManager {
   }
 
   public async getFavorites(): Promise<ClipboardItem[]> {
-    if (!this.db) {
-      throw new Error('Database not initialized')
-    }
-
     try {
-      const items = this.db
-        .prepare('SELECT * FROM clipboard_items WHERE is_favorite = 1 ORDER BY created_at DESC')
-        .all() as ClipboardItem[]
-
+      const items = this.data.clipboard_items
+        .filter(item => item.is_favorite)
+        .sort((a, b) => b.created_at - a.created_at)
+      
       return items
     } catch (error) {
       console.error('Error getting favorites:', error)
@@ -271,18 +270,14 @@ class StorageManager {
   }
 
   public async getStats(): Promise<{ total: number; favorites: number; today: number }> {
-    if (!this.db) {
-      throw new Error('Database not initialized')
-    }
-
     try {
-      const total = (this.db.prepare('SELECT COUNT(*) as count FROM clipboard_items').get() as { count: number }).count
+      const total = this.data.clipboard_items.length
 
-      const favorites = (this.db.prepare('SELECT COUNT(*) as count FROM clipboard_items WHERE is_favorite = 1').get() as { count: number }).count
+      const favorites = this.data.clipboard_items.filter(item => item.is_favorite).length
 
       const today = Date.now()
       const startOfDay = new Date(today).setHours(0, 0, 0, 0)
-      const todayCount = (this.db.prepare('SELECT COUNT(*) as count FROM clipboard_items WHERE created_at >= ?').get(startOfDay) as { count: number }).count
+      const todayCount = this.data.clipboard_items.filter(item => item.created_at >= startOfDay).length
 
       return {
         total,
@@ -308,11 +303,8 @@ class StorageManager {
   }
 
   public close(): void {
-    if (this.db) {
-      this.db.close()
-      this.db = null
-      console.log('Database connection closed')
-    }
+    // JSON 文件存储不需要关闭连接
+    console.log('Storage manager closed')
   }
 }
 

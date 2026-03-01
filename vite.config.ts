@@ -16,11 +16,11 @@ export default defineConfig({
         entry: 'electron/main.ts',
         vite: {
           build: {
-            sourcemap: true,
-            minify: false,
+            sourcemap: process.env.NODE_ENV === 'development',
+            minify: process.env.NODE_ENV === 'production',
             outDir: 'dist-electron',
             rollupOptions: {
-              external: ['better-sqlite3', 'electron-clipboard-watcher', 'clipboard'],
+              external: ['electron'],
               output: {
                 assetFileNames: (assetInfo) => {
                   if (assetInfo.name?.endsWith('.node')) {
@@ -37,16 +37,20 @@ export default defineConfig({
         input: 'electron/preload.ts',
         vite: {
           build: {
-            sourcemap: undefined, // #332
-            minify: false,
+            sourcemap: process.env.NODE_ENV === 'development',
+            minify: process.env.NODE_ENV === 'production',
             outDir: 'dist-electron',
             rollupOptions: {
-              external: ['better-sqlite3', 'electron-clipboard-watcher', 'clipboard'],
+              external: ['electron'],
               output: {
                 entryFileNames: '[name].js',
               },
             },
           },
+        },
+        onstart(options) {
+          // 当预加载脚本变化时，自动重启 Electron 渲染进程
+          options.reload()
         },
       },
     }),
@@ -61,7 +65,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ['better-sqlite3', 'electron-clipboard-watcher', 'clipboard'],
+      external: ['electron'],
     },
   },
 })

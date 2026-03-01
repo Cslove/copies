@@ -7,6 +7,7 @@ import { useDatabase } from './hooks/useDatabase'
 import { useClipboard } from './hooks/useClipboard'
 import { useHotkey } from './hooks/useHotkey'
 import { useClipboardStore } from './stores/clipboardStore'
+import { mockData } from './utils/mockData'
 
 function App() {
   const {
@@ -22,6 +23,7 @@ function App() {
     togglePinnedOnly,
     deleteItem: storeDeleteItem,
     updateItem: storeUpdateItem,
+    setLoading,
   } = useClipboardStore()
 
   const { loadItems, deleteItem, updateItem } = useDatabase()
@@ -31,11 +33,21 @@ function App() {
   // 初始化加载
   useEffect(() => {
     const init = async () => {
-      const loadedItems = await loadItems()
-      setItems(loadedItems)
+      // 检测是否在 Web 环境下（非 Electron 环境）
+      const isWebEnv = !window.electronAPI
+      
+      if (isWebEnv) {
+        // Web 环境下使用 mock 数据
+        setItems(mockData)
+        setLoading(false)
+      } else {
+        // Electron 环境下从数据库加载
+        const loadedItems = await loadItems()
+        setItems(loadedItems)
+      }
     }
     init()
-  }, [loadItems, setItems])
+  }, [loadItems, setItems, setLoading])
 
   // 监听面板显示事件
   useEffect(() => {
@@ -156,7 +168,7 @@ function App() {
 
         {/* 主内容区域 */}
         <main>
-          {isLoading ? (
+          {window.electronAPI && isLoading ? (
             <LoadingSpinner />
           ) : (
             <div className="space-y-3 max-h-125 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-200 scrollbar-track-transparent">

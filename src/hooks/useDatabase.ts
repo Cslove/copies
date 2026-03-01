@@ -3,7 +3,7 @@
  * 封装所有数据库相关的操作
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import type { ClipboardItem, ClipboardStats } from '../../types'
 import * as ipc from '../utils/ipc'
 
@@ -156,13 +156,6 @@ export const useDatabase = () => {
       return false
     }
   }, [])
-
-  /**
-   * 初始加载
-   */
-  useEffect(() => {
-    loadItems()
-  }, [loadItems])
 
   return {
     items,
