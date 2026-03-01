@@ -3,7 +3,7 @@
  * 处理快捷键相关的事件
  */
 
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import * as ipc from '../utils/ipc'
 
 export const useHotkey = () => {
@@ -38,6 +38,23 @@ export const useHotkey = () => {
   const onHidePanel = useCallback((callback: () => void) => {
     return ipc.onHidePanel(callback)
   }, [])
+
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        hidePanel()
+      }
+    }
+
+    // 添加事件监听
+    window.addEventListener('keydown', handleEscKey)
+
+    // 清理监听
+    return () => {
+      window.removeEventListener('keydown', handleEscKey)
+    }
+  }, [hidePanel])
 
   return {
     showPanel,

@@ -51,7 +51,7 @@ const electronAPI: ElectronAPI = {
 
   // 面板控制
   showPanel: () => ipcRenderer.invoke('panel:show'),
-  hidePanel: () => ipcRenderer.send('panel:hide'),
+  hidePanel: () => ipcRenderer.invoke('panel:hide'),
   onShowPanel: (callback: () => void) => ipcRenderer.on('show-panel', callback),
   onHidePanel: (callback: () => void) => ipcRenderer.on('hide-panel', callback),
 

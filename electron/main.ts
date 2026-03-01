@@ -72,11 +72,7 @@ app.on('will-quit', () => {
 
 // IPC 事件处理
 ipcMain.handle('panel:show', async () => {
-  if (mainWindow) {
-    mainWindow.show()
-    mainWindow.center()
-    mainWindow.focus()
-  }
+  hotkeyManager.showPanel()
   return true
 })
 

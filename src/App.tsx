@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import { ClipboardItemComponent } from './components/ClipboardItem'
 import { LoadingSpinner } from './components/LoadingSpinner'
 import { EmptyState } from './components/EmptyState'
@@ -30,34 +30,36 @@ function App() {
   const { pasteItem } = useClipboard()
   const { onShowPanel, onHidePanel } = useHotkey()
 
+  // 获取数据（统一的数据获取函数）
+  const fetchData = useCallback(async () => {
+    // 检测是否在 Web 环境下（非 Electron 环境）
+    const isWebEnv = !window.electronAPI
+    
+    if (isWebEnv) {
+      // Web 环境下使用 mock 数据
+      setItems(mockData)
+      setLoading(false)
+    } else {
+      // Electron 环境下从数据库加载
+      const loadedItems = await loadItems()
+      setItems(loadedItems)
+      setLoading(false)
+    }
+  }, [loadItems, setItems, setLoading])
+
   // 初始化加载
   useEffect(() => {
-    const init = async () => {
-      // 检测是否在 Web 环境下（非 Electron 环境）
-      const isWebEnv = !window.electronAPI
-      
-      if (isWebEnv) {
-        // Web 环境下使用 mock 数据
-        setItems(mockData)
-        setLoading(false)
-      } else {
-        // Electron 环境下从数据库加载
-        const loadedItems = await loadItems()
-        setItems(loadedItems)
-        setLoading(false)
-      }
-    }
-    init()
-  }, [loadItems, setItems, setLoading])
+    fetchData()
+  }, [fetchData])
 
   // 监听面板显示事件
   useEffect(() => {
     const cleanup = onShowPanel(() => {
       // 面板显示时刷新数据
-      loadItems()
+      fetchData()
     })
     return cleanup
-  }, [onShowPanel, loadItems])
+  }, [onShowPanel, fetchData])
 
   // 监听面板隐藏事件
   useEffect(() => {

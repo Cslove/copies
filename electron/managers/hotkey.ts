@@ -1,4 +1,4 @@
-import { globalShortcut, BrowserWindow } from 'electron'
+import { globalShortcut, BrowserWindow, screen } from 'electron'
 
 class HotkeyManager {
   private registeredShortcuts: string[] = []
@@ -7,11 +7,11 @@ class HotkeyManager {
   public registerGlobalShortcuts(mainWindow: BrowserWindow | null): void {
     this.mainWindow = mainWindow
 
-    // 注册显示历史面板的快捷键 (Cmd+Shift+V)
-    const showPanelShortcut = 'CommandOrControl+Shift+V'
+    // 注册显示历史面板的快捷键 (Cmd+Option+V)
+    const showPanelShortcut = 'CommandOrControl+Alt+V'
 
     const success = globalShortcut.register(showPanelShortcut, () => {
-      console.log('Global shortcut triggered: Cmd+Shift+V')
+      console.log('Global shortcut triggered: Cmd+Option+V')
       this.togglePanel()
     })
 
@@ -20,20 +20,6 @@ class HotkeyManager {
       console.log(`Registered global shortcut: ${showPanelShortcut}`)
     } else {
       console.error(`Failed to register global shortcut: ${showPanelShortcut}`)
-    }
-
-    // 注册隐藏面板的快捷键 (Esc)
-    const hidePanelShortcut = 'Escape'
-    const hideSuccess = globalShortcut.register(hidePanelShortcut, () => {
-      console.log('Global shortcut triggered: Escape')
-      this.hidePanelInternal()
-    })
-
-    if (hideSuccess) {
-      this.registeredShortcuts.push(hidePanelShortcut)
-      console.log(`Registered global shortcut: ${hidePanelShortcut}`)
-    } else {
-      console.error(`Failed to register global shortcut: ${hidePanelShortcut}`)
     }
   }
 
@@ -44,34 +30,36 @@ class HotkeyManager {
     }
 
     if (this.mainWindow.isVisible()) {
-      this.hidePanelInternal()
+      return
     } else {
-      this.showPanelInternal()
+      this.showPanel()
     }
   }
 
-  private showPanelInternal(): void {
+  public showPanel(): void {
     if (!this.mainWindow) {
       console.warn('Main window not available')
       return
     }
 
+    // 获取鼠标当前位置
+    const cursorPosition = screen.getCursorScreenPoint()
+    // 获取鼠标所在的屏幕
+    const display = screen.getDisplayNearestPoint(cursorPosition)
+    // 获取屏幕的工作区域（排除任务栏和 Dock）
+    const workArea = display.workArea
+
+    // 计算窗口位置，使其居中于鼠标所在的屏幕
+    const windowWidth = this.mainWindow.getBounds().width
+    const windowHeight = this.mainWindow.getBounds().height
+    const x = Math.floor(workArea.x + (workArea.width - windowWidth) / 2)
+    const y = Math.floor(workArea.y + (workArea.height - windowHeight) / 2)
+
+    this.mainWindow.setBounds({ x, y })
     this.mainWindow.show()
-    this.mainWindow.center()
     this.mainWindow.focus()
-    console.log('Panel shown')
-  }
-
-  private hidePanelInternal(): void {
-    if (!this.mainWindow) {
-      console.warn('Main window not available')
-      return
-    }
-
-    if (this.mainWindow.isVisible()) {
-      this.mainWindow.hide()
-      console.log('Panel hidden')
-    }
+    this.mainWindow.webContents.send('show-panel')
+    console.log('Panel shown on display at:', x, y)
   }
 
   public unregisterAllShortcuts(): void {
