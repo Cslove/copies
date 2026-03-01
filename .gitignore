@@ -101,7 +101,6 @@ static/.vuepress/dist
 webpack-stats.json
 
 # Lock files
-package-lock.json
 yarn.lock
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
