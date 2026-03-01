@@ -11,8 +11,6 @@ class ClipboardManager {
     if (this.watching) return
 
     this.watching = true
-
-    // 使用轮询方式监听剪贴板变化
     this.watchInterval = setInterval(() => {
       const content = this.readFromClipboard()
       if (content && content !== this.lastContent) {
@@ -20,12 +18,9 @@ class ClipboardManager {
         if (this.onChangeCallback) {
           this.onChangeCallback(content)
         }
-        // 保存到数据库
         storageManager.saveItem(content)
       }
-    }, 500) // 每500ms检查一次
-
-    console.log('Clipboard watching started')
+    }, 500)
   }
 
   public stopWatching(): void {

@@ -30,51 +30,38 @@ function App() {
   const { pasteItem } = useClipboard()
   const { onShowPanel, onHidePanel } = useHotkey()
 
-  // 获取数据（统一的数据获取函数）
   const fetchData = useCallback(async () => {
-    // 检测是否在 Web 环境下（非 Electron 环境）
     const isWebEnv = !window.electronAPI
 
     if (isWebEnv) {
-      // Web 环境下使用 mock 数据
       setItems(mockData)
-      setLoading(false)
     } else {
-      // Electron 环境下从数据库加载
       const loadedItems = await loadItems()
       setItems(loadedItems)
-      setLoading(false)
     }
+    setLoading(false)
   }, [loadItems, setItems, setLoading])
 
-  // 初始化加载
   useEffect(() => {
     fetchData()
   }, [fetchData])
 
-  // 监听面板显示事件
   useEffect(() => {
     const cleanup = onShowPanel(() => {
-      // 面板显示时刷新数据
       fetchData()
     })
     return cleanup
   }, [onShowPanel, fetchData])
 
-  // 监听面板隐藏事件
   useEffect(() => {
-    const cleanup = onHidePanel(() => {
-      // 面板隐藏时可以执行一些清理操作
-    })
+    const cleanup = onHidePanel(() => {})
     return cleanup
   }, [onHidePanel])
 
-  // 处理搜索
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
   }
 
-  // 处理点击项目（粘贴）
   const handleItemClick = async (id: number) => {
     const success = await pasteItem(id)
     if (success) {
@@ -84,7 +71,6 @@ function App() {
     }
   }
 
-  // 处理删除项目
   const handleDeleteItem = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation()
     const success = await deleteItem(id)
@@ -93,7 +79,6 @@ function App() {
     }
   }
 
-  // 处理收藏/取消收藏
   const handleToggleFavorite = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation()
     const item = items.find(item => item.id === id)
@@ -105,7 +90,6 @@ function App() {
     }
   }
 
-  // 处理置顶/取消置顶
   const handleTogglePin = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation()
     const item = items.find(item => item.id === id)
@@ -117,7 +101,6 @@ function App() {
     }
   }
 
-  // 获取要显示的项目列表
   const displayItems = searchQuery || showFavoritesOnly || showPinnedOnly ? filteredItems : items
 
   return (

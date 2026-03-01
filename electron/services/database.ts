@@ -25,7 +25,6 @@ class StorageManager {
   private nextId: number
 
   constructor() {
-    // 获取用户数据目录
     const userDataPath = app.getPath('userData')
     this.dataPath = path.join(userDataPath, 'clipboard_data.json')
     this.data = { clipboard_items: [] }
@@ -34,21 +33,17 @@ class StorageManager {
 
   public init(): void {
     try {
-      // 确保目录存在
       const userDataPath = app.getPath('userData')
       if (!fs.existsSync(userDataPath)) {
         fs.mkdirSync(userDataPath, { recursive: true })
       }
 
-      // 如果文件存在，加载数据
       if (fs.existsSync(this.dataPath)) {
         this.loadData()
       } else {
-        // 创建新文件
         this.saveData()
       }
 
-      // 计算下一个 ID
       if (this.data.clipboard_items.length > 0) {
         const maxId = Math.max(...this.data.clipboard_items.map(item => item.id))
         this.nextId = maxId + 1
@@ -92,11 +87,9 @@ class StorageManager {
     const now = Date.now()
 
     try {
-      // 检查是否已存在相同内容
       const existingItem = this.data.clipboard_items.find(item => item.content_hash === contentHash)
 
       if (existingItem) {
-        // 如果已存在，更新使用次数和时间戳
         existingItem.used_count += 1
         existingItem.updated_at = now
         this.saveData()
@@ -291,7 +284,6 @@ class StorageManager {
   }
 
   private generateHash(content: string): string {
-    // 使用 Node.js 内置的 crypto 模块生成 SHA256 哈希
     return crypto.createHash('sha256').update(content).digest('hex')
   }
 
