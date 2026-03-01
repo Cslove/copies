@@ -55,11 +55,23 @@ class HotkeyManager {
     const x = Math.floor(workArea.x + (workArea.width - windowWidth) / 2)
     const y = Math.floor(workArea.y + (workArea.height - windowHeight) / 2)
 
-    this.mainWindow.setBounds({ x, y })
-    this.mainWindow.show()
+    this.mainWindow.setPosition(Math.round(x), Math.round(y))
+
+    if (process.platform === 'darwin') {
+      // macOS 多桌面适配：临时跨越所有空间，再取消
+      this.mainWindow.setVisibleOnAllWorkspaces(true)
+      this.mainWindow.show()
+      // 下一 tick 取消跨空间，让窗口停留在当前桌面
+      setImmediate(() => {
+        if (!this.mainWindow!.isDestroyed()) {
+          this.mainWindow!.setVisibleOnAllWorkspaces(false)
+        }
+      })
+    } else {
+      this.mainWindow.show()
+    }
     this.mainWindow.focus()
     this.mainWindow.webContents.send('show-panel')
-    console.log('Panel shown on display at:', x, y)
   }
 
   public unregisterAllShortcuts(): void {

@@ -15,7 +15,7 @@ function createWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize
   
   mainWindow = new BrowserWindow({
-    width: Math.floor(width * 0.8),
+    width: Math.floor(width * 0.3),
     height: Math.floor(height * 0.8),
     resizable: false,
     frame: false,
