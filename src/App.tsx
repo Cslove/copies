@@ -44,6 +44,7 @@ function App() {
         // Electron 环境下从数据库加载
         const loadedItems = await loadItems()
         setItems(loadedItems)
+        setLoading(false)
       }
     }
     init()

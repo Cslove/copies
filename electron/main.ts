@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain, screen } from 'electron'
 import * as path from 'path'
 import { fileURLToPath } from 'url'
 import { clipboardManager } from './managers/clipboard'
@@ -11,9 +11,12 @@ const __dirname = path.dirname(__filename)
 let mainWindow: BrowserWindow | null = null
 
 function createWindow() {
+  // 获取屏幕尺寸，设置为屏幕的 80%
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize
+  
   mainWindow = new BrowserWindow({
-    width: 400,
-    height: 500,
+    width: Math.floor(width * 0.8),
+    height: Math.floor(height * 0.8),
     resizable: false,
     frame: false,
     alwaysOnTop: true,
@@ -29,10 +32,13 @@ function createWindow() {
   })
 
   if (app.isPackaged) {
+    // 生产环境：加载打包后的 HTML 文件
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
-    // mainWindow.webContents.openDevTools()
+    // 开发环境：加载 Vite 开发服务器
+    mainWindow.loadURL('http://localhost:5173')
+    // 打开开发者工具
+    mainWindow.webContents.openDevTools()
   }
 
   // 监听窗口关闭事件
