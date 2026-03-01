@@ -49,13 +49,33 @@ class HotkeyManager {
     // 获取屏幕的工作区域（排除任务栏和 Dock）
     const workArea = display.workArea
 
-    // 计算窗口位置，使其居中于鼠标所在的屏幕
     const windowWidth = this.mainWindow.getBounds().width
     const windowHeight = this.mainWindow.getBounds().height
-    const x = Math.floor(workArea.x + (workArea.width - windowWidth) / 2)
-    const y = Math.floor(workArea.y + (workArea.height - windowHeight) / 2)
 
-    this.mainWindow.setPosition(Math.round(x), Math.round(y))
+    // 以鼠标位置为基准，右下偏移 10px
+    let x = cursorPosition.x + 10
+    let y = cursorPosition.y + 10
+
+    // 边界检查：确保窗口不超出屏幕
+    // 右边界
+    if (x + windowWidth > workArea.x + workArea.width) {
+      x = cursorPosition.x - windowWidth - 10
+    }
+    // 左边界
+    if (x < workArea.x) {
+      x = workArea.x + 10
+    }
+    // 下边界
+    if (y + windowHeight > workArea.y + workArea.height) {
+      y = cursorPosition.y - windowHeight - 10
+    }
+    // 上边界
+    if (y < workArea.y) {
+      y = workArea.y + 10
+    }
+
+    // 设置窗口位置（取整）
+    this.mainWindow.setPosition(Math.floor(x), Math.floor(y))
 
     if (process.platform === 'darwin') {
       // macOS 多桌面适配：临时跨越所有空间，再取消
