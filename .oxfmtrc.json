@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": [
+    "node_modules/**",
+    "dist/**",
+    "dist-electron/**",
+    "build/**",
+    "coverage/**",
+    "out/**",
+    "release/**",
+    ".next/**",
+    ".nuxt/**",
+    "*.log",
+    "*.lock",
+    "*.tsbuildinfo",
+    ".cache/**",
+    ".vscode/**",
+    ".idea/**"
+  ],
+  "semi": false,
+  "singleQuote": true,
+  "printWidth": 100,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "arrowParens": "avoid"
+}

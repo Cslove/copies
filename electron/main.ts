@@ -13,7 +13,7 @@ let mainWindow: BrowserWindow | null = null
 function createWindow() {
   // 获取屏幕尺寸，设置为屏幕的 80%
   const { width, height } = screen.getPrimaryDisplay().workAreaSize
-  
+
   mainWindow = new BrowserWindow({
     width: Math.floor(width * 0.3),
     height: Math.floor(height * 0.8),

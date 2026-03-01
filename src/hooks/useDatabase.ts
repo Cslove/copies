@@ -35,20 +35,23 @@ export const useDatabase = () => {
   /**
    * 保存剪贴板项目
    */
-  const saveItem = useCallback(async (content: string): Promise<number | null> => {
-    try {
-      setError(null)
-      const id = await ipc.saveItem(content)
-      // 重新加载列表
-      await loadItems()
-      return id
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to save item'
-      setError(errorMessage)
-      console.error('Error saving item:', err)
-      return null
-    }
-  }, [loadItems])
+  const saveItem = useCallback(
+    async (content: string): Promise<number | null> => {
+      try {
+        setError(null)
+        const id = await ipc.saveItem(content)
+        // 重新加载列表
+        await loadItems()
+        return id
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to save item'
+        setError(errorMessage)
+        console.error('Error saving item:', err)
+        return null
+      }
+    },
+    [loadItems]
+  )
 
   /**
    * 删除剪贴板项目
@@ -72,39 +75,47 @@ export const useDatabase = () => {
   /**
    * 更新剪贴板项目
    */
-  const updateItem = useCallback(async (id: number, updates: Partial<ClipboardItem>): Promise<boolean> => {
-    try {
-      setError(null)
-      const success = await ipc.updateItem(id, updates)
-      if (success) {
-        setItems(prev =>
-          prev.map(item => (item.id === id ? { ...item, ...updates, updated_at: Date.now() } : item))
-        )
+  const updateItem = useCallback(
+    async (id: number, updates: Partial<ClipboardItem>): Promise<boolean> => {
+      try {
+        setError(null)
+        const success = await ipc.updateItem(id, updates)
+        if (success) {
+          setItems(prev =>
+            prev.map(item =>
+              item.id === id ? { ...item, ...updates, updated_at: Date.now() } : item
+            )
+          )
+        }
+        return success
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to update item'
+        setError(errorMessage)
+        console.error('Error updating item:', err)
+        return false
       }
-      return success
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update item'
-      setError(errorMessage)
-      console.error('Error updating item:', err)
-      return false
-    }
-  }, [])
+    },
+    []
+  )
 
   /**
    * 搜索剪贴板项目
    */
-  const searchItems = useCallback(async (query: string, limit: number = 50): Promise<ClipboardItem[]> => {
-    try {
-      setError(null)
-      const results = await ipc.searchItems(query, limit)
-      return results
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to search items'
-      setError(errorMessage)
-      console.error('Error searching items:', err)
-      return []
-    }
-  }, [])
+  const searchItems = useCallback(
+    async (query: string, limit: number = 50): Promise<ClipboardItem[]> => {
+      try {
+        setError(null)
+        const results = await ipc.searchItems(query, limit)
+        return results
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to search items'
+        setError(errorMessage)
+        console.error('Error searching items:', err)
+        return []
+      }
+    },
+    []
+  )
 
   /**
    * 获取收藏的项目

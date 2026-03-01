@@ -15,7 +15,10 @@ export const isElectron = (): boolean => {
 /**
  * 获取剪贴板项目列表
  */
-export const getClipboardItems = async (limit: number = 50, offset: number = 0): Promise<ClipboardItem[]> => {
+export const getClipboardItems = async (
+  limit: number = 50,
+  offset: number = 0
+): Promise<ClipboardItem[]> => {
   if (!isElectron()) {
     console.warn('Not running in Electron environment')
     return []

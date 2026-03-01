@@ -33,11 +33,7 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
       }`}
     >
       {/* 置顶标识 */}
-      {item.is_pinned && (
-        <div className="absolute top-2 right-2 text-purple-500">
-          📌
-        </div>
-      )}
+      {item.is_pinned && <div className="absolute top-2 right-2 text-purple-500">📌</div>}
 
       {/* 内容预览 */}
       <div className="text-purple-900 font-medium word-break pr-8">{item.preview}</div>
@@ -55,7 +51,7 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
         {/* 收藏按钮 */}
         {onToggleFavorite && (
           <button
-            onClick={(e) => onToggleFavorite(item.id, e)}
+            onClick={e => onToggleFavorite(item.id, e)}
             className="w-7 h-7 flex items-center justify-center rounded-full bg-white shadow hover:bg-purple-50 transition-colors"
             title={item.is_favorite ? '取消收藏' : '收藏'}
           >
@@ -66,7 +62,7 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
         {/* 置顶按钮 */}
         {onTogglePin && (
           <button
-            onClick={(e) => onTogglePin(item.id, e)}
+            onClick={e => onTogglePin(item.id, e)}
             className="w-7 h-7 flex items-center justify-center rounded-full bg-white shadow hover:bg-purple-50 transition-colors"
             title={item.is_pinned ? '取消置顶' : '置顶'}
           >
@@ -77,7 +73,7 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
         {/* 删除按钮 */}
         {onDelete && (
           <button
-            onClick={(e) => onDelete(item.id, e)}
+            onClick={e => onDelete(item.id, e)}
             className="w-7 h-7 flex items-center justify-center rounded-full bg-white shadow hover:bg-red-50 transition-colors"
             title="删除"
           >

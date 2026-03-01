@@ -65,7 +65,7 @@ class StorageManager {
     try {
       const content = fs.readFileSync(this.dataPath, 'utf-8')
       this.data = JSON.parse(content) as ClipboardData
-      
+
       // 验证数据结构
       if (!Array.isArray(this.data.clipboard_items)) {
         console.warn('Invalid data structure, resetting')
@@ -93,9 +93,7 @@ class StorageManager {
 
     try {
       // 检查是否已存在相同内容
-      const existingItem = this.data.clipboard_items.find(
-        item => item.content_hash === contentHash
-      )
+      const existingItem = this.data.clipboard_items.find(item => item.content_hash === contentHash)
 
       if (existingItem) {
         // 如果已存在，更新使用次数和时间戳
@@ -174,11 +172,11 @@ class StorageManager {
       const initialLength = this.data.clipboard_items.length
       this.data.clipboard_items = this.data.clipboard_items.filter(item => item.id !== id)
       const deleted = this.data.clipboard_items.length < initialLength
-      
+
       if (deleted) {
         this.saveData()
       }
-      
+
       return deleted
     } catch (error) {
       console.error('Error deleting item:', error)
@@ -189,7 +187,7 @@ class StorageManager {
   public async updateItem(id: number, updates: Partial<ClipboardItem>): Promise<boolean> {
     try {
       const item = this.data.clipboard_items.find(item => item.id === id)
-      
+
       if (!item) {
         return false
       }
@@ -207,10 +205,10 @@ class StorageManager {
       if (updates.is_pinned !== undefined) {
         item.is_pinned = updates.is_pinned
       }
-      
+
       item.updated_at = Date.now()
       this.saveData()
-      
+
       return true
     } catch (error) {
       console.error('Error updating item:', error)
@@ -261,7 +259,7 @@ class StorageManager {
       const items = this.data.clipboard_items
         .filter(item => item.is_favorite)
         .sort((a, b) => b.created_at - a.created_at)
-      
+
       return items
     } catch (error) {
       console.error('Error getting favorites:', error)
@@ -277,7 +275,9 @@ class StorageManager {
 
       const today = Date.now()
       const startOfDay = new Date(today).setHours(0, 0, 0, 0)
-      const todayCount = this.data.clipboard_items.filter(item => item.created_at >= startOfDay).length
+      const todayCount = this.data.clipboard_items.filter(
+        item => item.created_at >= startOfDay
+      ).length
 
       return {
         total,

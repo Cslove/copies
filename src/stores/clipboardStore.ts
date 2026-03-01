@@ -46,14 +46,14 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
   error: null,
 
   // 设置项目列表
-  setItems: (items) => {
+  setItems: items => {
     set({ items })
     get().refreshFilteredItems()
   },
 
   // 添加新项目
-  addItem: (item) => {
-    set((state) => {
+  addItem: item => {
+    set(state => {
       const newItems = [item, ...state.items]
       return { items: newItems }
     })
@@ -62,8 +62,8 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
 
   // 更新项目
   updateItem: (id, updates) => {
-    set((state) => ({
-      items: state.items.map((item) =>
+    set(state => ({
+      items: state.items.map(item =>
         item.id === id ? { ...item, ...updates, updated_at: Date.now() } : item
       ),
     }))
@@ -71,43 +71,43 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
   },
 
   // 删除项目
-  deleteItem: (id) => {
-    set((state) => ({
-      items: state.items.filter((item) => item.id !== id),
+  deleteItem: id => {
+    set(state => ({
+      items: state.items.filter(item => item.id !== id),
     }))
     get().refreshFilteredItems()
   },
 
   // 设置搜索查询
-  setSearchQuery: (query) => {
+  setSearchQuery: query => {
     set({ searchQuery: query })
     get().refreshFilteredItems()
   },
 
   // 切换只显示收藏
   toggleFavoritesOnly: () => {
-    set((state) => ({ showFavoritesOnly: !state.showFavoritesOnly }))
+    set(state => ({ showFavoritesOnly: !state.showFavoritesOnly }))
     get().refreshFilteredItems()
   },
 
   // 切换只显示置顶
   togglePinnedOnly: () => {
-    set((state) => ({ showPinnedOnly: !state.showPinnedOnly }))
+    set(state => ({ showPinnedOnly: !state.showPinnedOnly }))
     get().refreshFilteredItems()
   },
 
   // 设置统计数据
-  setStats: (stats) => {
+  setStats: stats => {
     set({ stats })
   },
 
   // 设置加载状态
-  setLoading: (loading) => {
+  setLoading: loading => {
     set({ isLoading: loading })
   },
 
   // 设置错误
-  setError: (error) => {
+  setError: error => {
     set({ error })
   },
 
@@ -134,20 +134,19 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(
-        (item) =>
-          item.content.toLowerCase().includes(query) ||
-          item.preview.toLowerCase().includes(query)
+        item =>
+          item.content.toLowerCase().includes(query) || item.preview.toLowerCase().includes(query)
       )
     }
 
     // 应用收藏过滤
     if (showFavoritesOnly) {
-      filtered = filtered.filter((item) => item.is_favorite)
+      filtered = filtered.filter(item => item.is_favorite)
     }
 
     // 应用置顶过滤
     if (showPinnedOnly) {
-      filtered = filtered.filter((item) => item.is_pinned)
+      filtered = filtered.filter(item => item.is_pinned)
     }
 
     set({ filteredItems: filtered })

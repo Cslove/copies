@@ -1,0 +1,35 @@
+{
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "warn",
+    "style": "error",
+    "complexity": "warn",
+    "bugrisk": "error"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2021": true
+  },
+  "ignore": ["dist", "dist-electron", "node_modules", "coverage", "build"],
+  "settings": {
+    "typescript": {
+      "version": "5.9.3"
+    }
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.{ts,tsx}"],
+      "env": {
+        "browser": true
+      }
+    },
+    {
+      "files": ["electron/**/*.{ts,tsx}"],
+      "env": {
+        "node": true
+      }
+    }
+  ]
+}

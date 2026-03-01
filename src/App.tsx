@@ -34,7 +34,7 @@ function App() {
   const fetchData = useCallback(async () => {
     // 检测是否在 Web 环境下（非 Electron 环境）
     const isWebEnv = !window.electronAPI
-    
+
     if (isWebEnv) {
       // Web 环境下使用 mock 数据
       setItems(mockData)

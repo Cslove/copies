@@ -22,7 +22,7 @@ export default defineConfig({
             rollupOptions: {
               external: ['electron'],
               output: {
-                assetFileNames: (assetInfo) => {
+                assetFileNames: assetInfo => {
                   if (assetInfo.name?.endsWith('.node')) {
                     return 'assets/[name][extname]'
                   }

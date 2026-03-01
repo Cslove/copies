@@ -7,9 +7,11 @@ import type { ClipboardItem } from '../../types'
 export const mockData: ClipboardItem[] = [
   {
     id: 1,
-    content: '这是一段示例文本，用于展示剪贴板历史记录功能。你可以复制任意文本，它们都会出现在这里。',
+    content:
+      '这是一段示例文本，用于展示剪贴板历史记录功能。你可以复制任意文本，它们都会出现在这里。',
     content_hash: 'mock-hash-1',
-    preview: '这是一段示例文本，用于展示剪贴板历史记录功能。你可以复制任意文本，它们都会出现在这里。',
+    preview:
+      '这是一段示例文本，用于展示剪贴板历史记录功能。你可以复制任意文本，它们都会出现在这里。',
     is_favorite: true,
     is_pinned: true,
     created_at: Date.now() - 3600000,
