@@ -3,7 +3,9 @@ import { ClipboardItemComponent } from './components/ClipboardItem'
 import { LoadingSpinner } from './components/LoadingSpinner'
 import { EmptyState } from './components/EmptyState'
 import { Footer } from './components/Footer'
+import { Header } from './components/Header/Header'
 import { Paper } from './components/Paper/Paper'
+import { Search } from './components/Search/Search'
 import { useDatabase } from './hooks/useDatabase'
 import { useClipboard } from './hooks/useClipboard'
 import { useHotkey } from './hooks/useHotkey'
@@ -20,8 +22,6 @@ function App() {
     showPinnedOnly,
     setItems,
     setSearchQuery,
-    toggleFavoritesOnly,
-    togglePinnedOnly,
     deleteItem: storeDeleteItem,
     updateItem: storeUpdateItem,
     setLoading,
@@ -58,10 +58,6 @@ function App() {
     const cleanup = onHidePanel(() => {})
     return cleanup
   }, [onHidePanel])
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }
 
   const handleItemClick = async (id: number) => {
     const success = await pasteItem(id)
@@ -107,77 +103,43 @@ function App() {
   return (
     <Paper className="w-full max-w-md">
       {/* 头部 */}
-      <header className="flex items-center justify-between pb-2 border-b">
-        <h1 className="text-xl font-bold">Copies</h1>
-        <div className="flex space-x-2">
-          <button
-            onClick={toggleFavoritesOnly}
-            className={`px-3 py-1 text-xs rounded-full transition-colors ${
-              showFavoritesOnly ? 'bg-gray-700 text-white' : 'hover:bg-gray-100'
-            }`}
-          >
-            ⭐ 收藏
-          </button>
-          <button
-            onClick={togglePinnedOnly}
-            className={`px-3 py-1 text-xs rounded-full transition-colors ${
-              showPinnedOnly ? 'bg-gray-700 text-white' : 'hover:bg-gray-100'
-            }`}
-          >
-            📌 置顶
-          </button>
-        </div>
-      </header>
+      <Header />
 
       {/* 搜索栏 */}
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="搜索剪贴板内容..."
-          value={searchQuery}
-          onChange={handleSearch}
-          className="w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
-        />
-        {searchQuery && (
-          <button
-            onClick={() => setSearchQuery('')}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-          >
-            ✕
-          </button>
-        )}
-      </div>
+      <Search value={searchQuery} onChange={setSearchQuery} />
 
       {/* 主内容区域 */}
-      <main>
+      <main className="flex-1 overflow-hidden min-h-0">
         {window.electronAPI && isLoading ? (
           <LoadingSpinner />
         ) : (
-          <div className="space-y-3 max-h-125 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-            {displayItems.length > 0 ? (
-              displayItems.map(item => (
-                <ClipboardItemComponent
-                  key={item.id}
-                  item={item}
-                  onClick={handleItemClick}
-                  onDelete={handleDeleteItem}
-                  onToggleFavorite={handleToggleFavorite}
-                  onTogglePin={handleTogglePin}
+          <div className="h-full overflow-y-auto px-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            <div className="space-y-3 pb-4">
+              {displayItems.length > 0 ? (
+                displayItems.map(item => (
+                  <ClipboardItemComponent
+                    key={item.id}
+                    item={item}
+                    onClick={handleItemClick}
+                    onDelete={handleDeleteItem}
+                    onToggleFavorite={handleToggleFavorite}
+                    onTogglePin={handleTogglePin}
+                  />
+                ))
+              ) : (
+                <EmptyState
+                  message={
+                    searchQuery
+                      ? '未找到匹配的内容'
+                      : showFavoritesOnly
+                        ? '暂无收藏内容'
+                        : showPinnedOnly
+                          ? '暂无置顶内容'
+                          : '暂无剪贴板历史'
+                  }
                 />
-              ))
-            ) : (
-              <EmptyState
-                message={
-                  searchQuery
-                    ? '未找到匹配的内容'
-                    : showFavoritesOnly
-                      ? '暂无收藏内容'
-                      : showPinnedOnly
-                        ? '暂无置顶内容'
-                        : '暂无剪贴板历史'
-                }
-              />
-            )}
+              )}
+            </div>
           </div>
         )}
       </main>

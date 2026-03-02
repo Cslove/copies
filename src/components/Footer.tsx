@@ -4,8 +4,8 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ year = new Date().getFullYear() }) => {
   return (
-    <footer className="pt-4 text-center text-xs border-t">
-      <p>Copies © {year} - 智能剪贴板管理</p>
+    <footer className="h-9 flex items-center justify-center text-xs border-t border-black/10">
+      <p className="m-0">Copies © {year} - 智能剪贴板管理</p>
     </footer>
   )
 }

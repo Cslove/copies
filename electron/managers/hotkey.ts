@@ -90,7 +90,7 @@ class HotkeyManager {
     } else {
       this.mainWindow.show()
     }
-    this.mainWindow.focus()
+    // this.mainWindow.focus()
     this.mainWindow.webContents.send('show-panel')
   }
 

@@ -8,5 +8,5 @@ interface PaperProps {
 }
 
 export const Paper: React.FC<PaperProps> = ({ children, className }) => {
-  return <div className={`${styles.paper} ${className || ''}`}>{children}</div>
+  return <div className={`${styles.paper} flex flex-col ${className || ''}`}>{children}</div>
 }

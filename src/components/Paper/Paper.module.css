@@ -1,20 +1,15 @@
 /* Paper.module.css */
 .paper {
   /* 使用真实的纸张纹理图片 */
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
   background-image: url('/src/assets/paper.jpg');
   background-size: contain;
   background-repeat: repeat;
   background-blend-mode: overlay;
-
-  /* 纸张阴影和圆角 */
-  border-radius: 4px;
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.08),
     0 1px 2px rgba(0, 0, 0, 0.05);
-
-  /* 内边距，模拟页边距 */
-  padding: 2rem 2.5rem;
 
   /* 排版基础 */
   color: #2c2c2c; /* 深灰，不是纯黑 */
