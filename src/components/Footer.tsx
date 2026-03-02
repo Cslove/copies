@@ -8,7 +8,7 @@ const getPlatform = (): 'mac' | 'windows' => {
 
 const ShortcutKey: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <kbd className="px-2 py-0.5 text-xs font-medium border border-black/20 rounded bg-black/5">
+    <kbd className="px-1.5 py-0.5 text-[10px] font-medium border border-black/20 rounded bg-black/5">
       {children}
     </kbd>
   )
@@ -18,7 +18,7 @@ export const Footer: React.FC<FooterProps> = ({ year = new Date().getFullYear() 
   const platform = getPlatform()
 
   const closeShortcut = 'Esc'
-  const openShortcut = platform === 'mac' ? '⌘⌥V' : 'Ctrl+Alt+V'
+  const openShortcut = platform === 'mac' ? 'Cmd+Opt+V' : 'Ctrl+Alt+V'
 
   return (
     <footer className="h-9 flex items-center justify-between px-4 text-xs border-t border-black/10">
