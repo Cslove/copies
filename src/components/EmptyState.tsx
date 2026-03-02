@@ -4,7 +4,7 @@ interface EmptyStateProps {
 
 export const EmptyState: React.FC<EmptyStateProps> = ({ message = '暂无剪贴板历史' }) => {
   return (
-    <div className="text-center py-10 text-purple-400">
+    <div className="text-center py-10">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-12 w-12 mx-auto mb-3 opacity-50"
