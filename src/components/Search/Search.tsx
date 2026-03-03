@@ -1,5 +1,5 @@
 import React from 'react'
-import { CloseIcon } from '../../assets/icons/CloseIcon'
+import { CloseIcon } from '@/assets/icons/CloseIcon'
 
 interface SearchProps {
   value: string

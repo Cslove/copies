@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand'
-import type { ClipboardItem, ClipboardStats } from '../../types'
+import type { ClipboardItem, ClipboardStats } from '@/types/index'
 
 interface ClipboardState {
   // 数据

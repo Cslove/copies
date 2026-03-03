@@ -4,7 +4,7 @@
  */
 
 import { useCallback } from 'react'
-import * as ipc from '../utils/ipc'
+import * as ipc from '@/utils/ipc'
 
 export const useClipboard = () => {
   /**

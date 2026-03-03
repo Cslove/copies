@@ -4,8 +4,8 @@
  */
 
 import { useState, useCallback } from 'react'
-import type { ClipboardItem, ClipboardStats } from '../../types'
-import * as ipc from '../utils/ipc'
+import type { ClipboardItem, ClipboardStats } from '@/types/index'
+import * as ipc from '@/utils/ipc'
 
 export const useDatabase = () => {
   const [items, setItems] = useState<ClipboardItem[]>([])

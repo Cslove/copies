@@ -1,9 +1,8 @@
+import React from 'react'
+import { getPlatform } from '@/utils/platform'
+
 interface FooterProps {
   year?: number
-}
-
-const getPlatform = (): 'mac' | 'windows' => {
-  return navigator.platform.toLowerCase().includes('mac') ? 'mac' : 'windows'
 }
 
 const ShortcutKey: React.FC<{ children: React.ReactNode }> = ({ children }) => {

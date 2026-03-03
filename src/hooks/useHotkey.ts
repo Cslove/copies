@@ -4,7 +4,7 @@
  */
 
 import { useCallback, useEffect } from 'react'
-import * as ipc from '../utils/ipc'
+import * as ipc from '@/utils/ipc'
 
 export const useHotkey = () => {
   /**

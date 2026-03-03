@@ -3,7 +3,7 @@
  * 提供类型安全的 Electron IPC 通信方法
  */
 
-import type { ClipboardItem, ClipboardStats } from '../../types'
+import type { ClipboardItem, ClipboardStats } from '@/types/index'
 
 /**
  * 检查是否在 Electron 环境中

@@ -1,6 +1,6 @@
 import React from 'react'
-import { hidePanel } from '../../utils/ipc'
-import { CloseIcon } from '../../assets/icons/CloseIcon'
+import { hidePanel } from '@/utils/ipc'
+import { CloseIcon } from '@/assets/icons/CloseIcon'
 
 export const Header: React.FC = () => {
   const handleClose = () => {
