@@ -101,7 +101,7 @@ function App() {
   const displayItems = searchQuery || showFavoritesOnly || showPinnedOnly ? filteredItems : items
 
   return (
-    <Paper className="w-full max-w-md">
+    <Paper className="w-full">
       {/* 头部 */}
       <Header />
 
@@ -113,7 +113,7 @@ function App() {
         {window.electronAPI && isLoading ? (
           <LoadingSpinner />
         ) : (
-          <div className="h-full overflow-y-auto px-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+          <div className="h-full overflow-y-auto px-4 custom-scrollbar">
             <div className="space-y-3 pb-4">
               {displayItems.length > 0 ? (
                 displayItems.map(item => (
