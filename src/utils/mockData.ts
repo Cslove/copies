@@ -11,7 +11,7 @@ export const mockData: ClipboardItem[] = [
       '这是一段示例文本，用于展示剪贴板历史记录功能。你可以复制任意文本，它们都会出现在这里。',
     content_hash: 'mock-hash-1',
     preview:
-      '这是一段示例文本，用于展示剪贴板历史记录功能。你可以复制任意文本，它们都会出现在这里。',
+      '这是一段示例文本，用于展示剪贴板历史记录功能。你可以复制任意文更麻烦，的那个烦恼都没告诉你发到你，四姑娘山发的本，它们都会出现在这里。',
     is_favorite: true,
     is_pinned: true,
     created_at: Date.now() - 3600000,
