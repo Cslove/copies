@@ -35,7 +35,7 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 0;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -48,4 +48,13 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: rgb(112, 112, 112);
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

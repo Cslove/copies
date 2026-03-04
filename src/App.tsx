@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { ClipboardItemComponent } from '@/components/ClipboardItem'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { EmptyState } from '@/components/EmptyState'
@@ -6,6 +6,7 @@ import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { Paper } from '@/components/Paper'
 import { Search } from '@/components/Search'
+import { Tabs, TabItem } from '@/components/Tabs'
 import { useDatabase } from '@/hooks/useDatabase'
 import { useClipboard } from '@/hooks/useClipboard'
 import { useHotkey } from '@/hooks/useHotkey'
@@ -30,6 +31,14 @@ function App() {
   const { loadItems, deleteItem, updateItem } = useDatabase()
   const { pasteItem } = useClipboard()
   const { onShowPanel, onHidePanel } = useHotkey()
+
+  // Tabs 状态管理
+  const [activeTab, setActiveTab] = useState('all')
+  const [tabs, setTabs] = useState<TabItem[]>([
+    { key: 'all', label: '全部', closable: false },
+    { key: 'text', label: '文本', closable: true },
+    { key: 'image', label: '图片', closable: true },
+  ])
 
   const fetchData = useCallback(async () => {
     const isWebEnv = !window.electronAPI
@@ -58,6 +67,35 @@ function App() {
     const cleanup = onHidePanel(() => {})
     return cleanup
   }, [onHidePanel])
+
+  // 切换标签页时刷新数据
+  const handleTabChange = (key: string) => {
+    setActiveTab(key)
+    fetchData()
+  }
+
+  // 新增标签页
+  const handleAddTab = () => {
+    const newTabKey = `tab-${Date.now()}`
+    const newTab: TabItem = {
+      key: newTabKey,
+      label: `新标签 ${tabs.length}`,
+      closable: true,
+    }
+    setTabs([...tabs, newTab])
+    setActiveTab(newTabKey)
+  }
+
+  // 删除标签页
+  const handleDeleteTab = (key: string) => {
+    const newTabs = tabs.filter(tab => tab.key !== key)
+    setTabs(newTabs)
+
+    // 如果删除的是当前激活的标签，切换到第一个标签
+    if (activeTab === key && newTabs.length > 0) {
+      setActiveTab(newTabs[0].key)
+    }
+  }
 
   const handleItemClick = async (id: number) => {
     const success = await pasteItem(id)
@@ -107,6 +145,16 @@ function App() {
 
       {/* 搜索栏 */}
       <Search value={searchQuery} onChange={setSearchQuery} />
+
+      {/* 标签页 */}
+      <Tabs
+        activeKey={activeTab}
+        items={tabs}
+        onChange={handleTabChange}
+        onAdd={handleAddTab}
+        onDelete={handleDeleteTab}
+        extra={<div className="text-xs text-gray-500">共 {items.length} 项</div>}
+      />
 
       {/* 主内容区域 */}
       <main className="flex-1 overflow-hidden min-h-0">
