@@ -80,7 +80,7 @@ class HotkeyManager {
     if (process.platform === 'darwin') {
       // macOS 多桌面适配：临时跨越所有空间，再取消
       this.mainWindow.setVisibleOnAllWorkspaces(true)
-      this.mainWindow.show()
+      this.mainWindow.showInactive()
       // 下一 tick 取消跨空间，让窗口停留在当前桌面
       setImmediate(() => {
         if (!this.mainWindow!.isDestroyed()) {
@@ -88,7 +88,7 @@ class HotkeyManager {
         }
       })
     } else {
-      this.mainWindow.show()
+      this.mainWindow.showInactive()
     }
     // this.mainWindow.focus()
     this.mainWindow.webContents.send('show-panel')
