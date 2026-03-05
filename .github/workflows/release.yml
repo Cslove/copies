@@ -11,39 +11,61 @@ permissions:
 
 jobs:
   build-and-release:
-    runs-on: macos-latest
-    
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
     steps:
       # 1. 检出代码
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       # 2. 设置 Node.js 环境
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       # 3. 安装依赖
       - name: Install dependencies
         run: npm ci
-      
+
       # 4. 构建应用
       - name: Build Electron app
         run: npm run build
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      
-      # 5. 创建 Release
+
+      # 5. 上传构建产物
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-build
+          path: dist/*
+
+  create-release:
+    needs: build-and-release
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      # 1. 下载所有构建产物
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      # 2. 创建 Release
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/*.dmg
-            dist/*.zip
+            artifacts/**/*
           draft: false
           prerelease: false
           generate_release_notes: true
