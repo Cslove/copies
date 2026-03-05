@@ -67,11 +67,7 @@ jobs:
         with:
           files: |
             artifacts/**/*.dmg
-            artifacts/**/*.zip
             artifacts/**/*.exe
-            artifacts/**/*.AppImage
-            artifacts/**/*.deb
-            artifacts/**/*.rpm
           draft: false
           prerelease: false
           generate_release_notes: true
