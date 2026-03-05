@@ -19,12 +19,12 @@ interface UseAutoUpdateReturn {
  * 处理应用自动更新的所有逻辑
  */
 export function useAutoUpdate(): UseAutoUpdateReturn {
-  const [updateAvailable, setUpdateAvailable] = useState(true)
+  const [updateAvailable, setUpdateAvailable] = useState(false)
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null)
   const [updateProgress, setUpdateProgress] = useState<UpdateProgress | null>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const [isDownloaded, setIsDownloaded] = useState(false)
-  const [showUpdateDialog, setShowUpdateDialog] = useState(true)
+  const [showUpdateDialog, setShowUpdateDialog] = useState(false)
 
   // 检查更新
   const checkForUpdates = useCallback(async () => {
