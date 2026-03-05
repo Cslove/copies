@@ -1,7 +1,6 @@
-import { DeleteIcon } from '@/assets/icons/DeleteIcon'
-import { CopyIcon } from '@/assets/icons/CopyIcon'
-// import { FavoriteIcon } from '@/assets/icons/FavoriteIcon'
-// import { PinIcon } from '@/assets/icons/PinIcon'
+import { DeleteIcon, CopyIcon } from '@/assets/icons'
+// import { FavoriteIcon }
+// import { PinIcon }
 
 interface ClipboardItem {
   id: number
@@ -34,7 +33,7 @@ const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title, className
   return (
     <button
       onClick={onClick}
-      className={`w-5 h-8 flex items-center justify-center transition-colors text-[#2c2c2c] opacity-60 hover:opacity-100 cursor-pointer ${className}`}
+      className={`w-4 h-8 flex items-center justify-center transition-colors text-[#2c2c2c] opacity-60 hover:opacity-100 cursor-pointer ml-2 ${className}`}
       title={title}
     >
       {icon}

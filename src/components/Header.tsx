@@ -1,6 +1,6 @@
 import React from 'react'
 import { hidePanel } from '@/utils/ipc'
-import { CloseIcon } from '@/assets/icons/CloseIcon'
+import { CloseIcon } from '@/assets/icons'
 
 export const Header: React.FC = () => {
   const handleClose = () => {
@@ -11,11 +11,11 @@ export const Header: React.FC = () => {
     <header className="flex items-center justify-center relative h-9 max-h-9 border-b border-black/10">
       <span className="text-lg font-semibold text-[#2c2c2c] m-0">Copies</span>
       <button
-        className="absolute right-3 top-1/2 -translate-y-1/2 border-none bg-transparent p-0 m-0 cursor-pointer"
+        className="absolute right-3 top-1/2 -translate-y-1/2 border-none bg-transparent p-0 m-0 cursor-pointer flex items-center justify-center"
         onClick={handleClose}
         aria-label="关闭窗口"
       >
-        <CloseIcon />
+        <CloseIcon className="w-4 h-4" />
       </button>
     </header>
   )

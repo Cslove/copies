@@ -1,6 +1,5 @@
 import React from 'react'
-import { PlusIcon } from '@/assets/icons/PlusIcon'
-import { CloseIcon } from '@/assets/icons/CloseIcon'
+import { PlusIcon, CloseIcon } from '@/assets/icons'
 
 export interface TabItem {
   key: string

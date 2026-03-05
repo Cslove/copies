@@ -1,5 +1,5 @@
 import React from 'react'
-import { CloseIcon } from '@/assets/icons/CloseIcon'
+import { CloseIcon } from '@/assets/icons'
 
 interface SearchProps {
   value: string
@@ -32,10 +32,10 @@ export const Search: React.FC<SearchProps> = ({
       {value && (
         <button
           onClick={handleClear}
-          className="absolute right-6 top-1/2 transform -translate-y-1/2 border-none bg-transparent p-0 cursor-pointer"
+          className="absolute right-6 top-1/2 transform -translate-y-1/2 border-none bg-transparent p-0 cursor-pointer flex items-center justify-center"
           aria-label="清除搜索"
         >
-          <CloseIcon />
+          <CloseIcon className="w-4 h-4" />
         </button>
       )}
     </div>
