@@ -46,6 +46,7 @@ jobs:
         with:
           name: ${{ matrix.os }}-build
           path: dist/*
+          if-no-files-found: error
 
   create-release:
     needs: build-and-release
@@ -65,7 +66,12 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            artifacts/**/*
+            artifacts/**/*.dmg
+            artifacts/**/*.zip
+            artifacts/**/*.exe
+            artifacts/**/*.AppImage
+            artifacts/**/*.deb
+            artifacts/**/*.rpm
           draft: false
           prerelease: false
           generate_release_notes: true
