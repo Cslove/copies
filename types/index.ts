@@ -14,6 +14,41 @@ export interface ClipboardItem {
 }
 
 /**
+ * 更新信息接口
+ */
+export interface UpdateInfo {
+  version: string
+  releaseNotes?: string
+  releaseDate?: string
+  files?: Array<{
+    url: string
+    sha512: string
+    size: number
+  }>
+  path?: string
+  sha512?: string
+}
+
+/**
+ * 更新进度接口
+ */
+export interface UpdateProgress {
+  percent: number
+  transferred: number
+  total: number
+  bytesPerSecond: number
+}
+
+/**
+ * 更新错误接口
+ */
+export interface UpdateError {
+  message: string
+  code?: string
+  stack?: string
+}
+
+/**
  * Electron API 接口定义
  */
 export interface ElectronAPI {
@@ -31,11 +66,22 @@ export interface ElectronAPI {
   // 面板控制
   showPanel: () => Promise<boolean>
   hidePanel: () => void
-  onShowPanel: (callback: () => void) => void
-  onHidePanel: (callback: () => void) => void
+  onShowPanel: (callback: () => void) => () => void
+  onHidePanel: (callback: () => void) => () => void
 
   // 剪贴板监听
-  onClipboardChange: (callback: (item: { content: string }) => void) => void
+  onClipboardChange: (callback: (item: { content: string }) => void) => () => void
+
+  // 自动更新
+  checkForUpdates: () => Promise<UpdateInfo | null>
+  downloadUpdate: () => Promise<boolean>
+  installUpdate: () => Promise<boolean>
+  onUpdateChecking: (callback: () => void) => () => void
+  onUpdateAvailable: (callback: (info: UpdateInfo) => void) => () => void
+  onUpdateNotAvailable: (callback: (info: UpdateInfo) => void) => () => void
+  onUpdateProgress: (callback: (progress: UpdateProgress) => void) => () => void
+  onUpdateDownloaded: (callback: (info: UpdateInfo) => void) => () => void
+  onUpdateError: (callback: (error: UpdateError) => void) => () => void
 }
 
 /**

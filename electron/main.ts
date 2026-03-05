@@ -1,9 +1,11 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, screen } from 'electron'
+import { app, BrowserWindow, globalShortcut, screen } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import * as path from 'path'
 import { fileURLToPath } from 'url'
 import { clipboardManager } from './managers/clipboard'
 import { hotkeyManager } from './managers/hotkey'
 import { storageManager } from './services/database'
+import { registerAllHandlers, setupAllEventListeners } from './handlers'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -19,8 +21,8 @@ function createWindow() {
     : path.join(__dirname, '../build/icon.icns')
 
   // 计算默认窗口尺寸
-  const defaultWidth = Math.floor(width * 0.25)
-  const defaultHeight = Math.floor(height * 0.5)
+  const defaultWidth = Math.floor(width * 0.8)
+  const defaultHeight = Math.floor(height * 0.8)
 
   mainWindow = new BrowserWindow({
     width: defaultWidth,
@@ -45,7 +47,7 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
   } else {
     mainWindow.loadURL('http://localhost:5173')
-    // mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
   }
 
   mainWindow.on('closed', () => {
@@ -58,6 +60,21 @@ app.whenReady().then(() => {
   createWindow()
   clipboardManager.startWatching()
   hotkeyManager.registerGlobalShortcuts(mainWindow)
+
+  // 注册所有 IPC 处理器
+  registerAllHandlers(mainWindow)
+
+  // 设置所有事件监听器
+  setupAllEventListeners(mainWindow)
+
+  // 应用启动后自动检查更新（仅在打包后）
+  if (app.isPackaged) {
+    // 延迟 5 秒后检查更新，避免启动时阻塞
+    setTimeout(() => {
+      autoUpdater.checkForUpdates()
+    }, 5000)
+  }
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow()
@@ -76,65 +93,6 @@ app.on('will-quit', () => {
   globalShortcut.unregisterAll()
   clipboardManager.stopWatching()
   storageManager.close()
-})
-
-ipcMain.handle('panel:show', async () => {
-  hotkeyManager.showPanel()
-  return true
-})
-
-ipcMain.handle('panel:hide', async () => {
-  if (mainWindow) {
-    mainWindow.hide()
-  }
-  return true
-})
-
-ipcMain.handle('clipboard:getItems', async (_, limit: number = 50, offset: number = 0) => {
-  return await storageManager.getItems(limit, offset)
-})
-
-ipcMain.handle('clipboard:saveItem', async (_, content: string) => {
-  return await storageManager.saveItem(content)
-})
-
-ipcMain.handle('clipboard:deleteItem', async (_, id: number) => {
-  return await storageManager.deleteItem(id)
-})
-
-ipcMain.handle('clipboard:updateItem', async (_, id: number, updates: Record<string, unknown>) => {
-  return await storageManager.updateItem(id, updates)
-})
-
-ipcMain.handle('clipboard:searchItems', async (_, query: string, limit: number = 50) => {
-  return await storageManager.searchItems(query, limit)
-})
-
-ipcMain.handle('clipboard:getFavorites', async () => {
-  return await storageManager.getFavorites()
-})
-
-ipcMain.handle('clipboard:getStats', async () => {
-  return await storageManager.getStats()
-})
-
-ipcMain.handle('clipboard:clearAllItems', async () => {
-  return await storageManager.clearAllItems()
-})
-
-ipcMain.handle('clipboard:pasteItem', async (_, id: number) => {
-  const item = await storageManager.getItemById(id)
-  if (item) {
-    clipboardManager.writeToClipboard(item.content)
-    return true
-  }
-  return false
-})
-
-clipboardManager.onClipboardChanged((content: string) => {
-  if (mainWindow) {
-    mainWindow.webContents.send('clipboard:changed', { content })
-  }
 })
 
 export { mainWindow }

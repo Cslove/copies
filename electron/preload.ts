@@ -1,38 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
-
-interface ClipboardItem {
-  id: number
-  content: string
-  content_hash: string
-  preview: string
-  is_favorite: boolean
-  is_pinned: boolean
-  created_at: number
-  updated_at: number
-  used_count: number
-}
-
-interface ElectronAPI {
-  // 剪贴板操作
-  getClipboardItems: (limit?: number, offset?: number) => Promise<ClipboardItem[]>
-  saveItem: (content: string) => Promise<number>
-  deleteItem: (id: number) => Promise<boolean>
-  pasteItem: (id: number) => Promise<boolean>
-  updateItem: (id: number, updates: Partial<ClipboardItem>) => Promise<boolean>
-  searchItems: (query: string, limit?: number) => Promise<ClipboardItem[]>
-  getFavorites: () => Promise<ClipboardItem[]>
-  getStats: () => Promise<{ total: number; favorites: number; today: number }>
-  clearAllItems: () => Promise<boolean>
-
-  // 面板控制
-  showPanel: () => Promise<boolean>
-  hidePanel: () => void
-  onShowPanel: (callback: () => void) => void
-  onHidePanel: (callback: () => void) => void
-
-  // 剪贴板监听
-  onClipboardChange: (callback: (item: { content: string }) => void) => void
-}
+import { onIpcEvent } from './utils/ipcEventManager'
+import type { ElectronAPI, UpdateInfo, UpdateProgress, UpdateError, ClipboardItem } from '../types/index'
 
 const electronAPI: ElectronAPI = {
   // 剪贴板操作
@@ -52,14 +20,25 @@ const electronAPI: ElectronAPI = {
   // 面板控制
   showPanel: () => ipcRenderer.invoke('panel:show'),
   hidePanel: () => ipcRenderer.invoke('panel:hide'),
-  onShowPanel: (callback: () => void) => ipcRenderer.on('show-panel', callback),
-  onHidePanel: (callback: () => void) => ipcRenderer.on('hide-panel', callback),
+  onShowPanel: (callback: () => void) => onIpcEvent('show-panel', callback),
+  onHidePanel: (callback: () => void) => onIpcEvent('hide-panel', callback),
 
   // 剪贴板监听
   onClipboardChange: (callback: (item: { content: string }) => void) =>
-    ipcRenderer.on('clipboard:changed', (_event, item) => callback(item)),
+    onIpcEvent('clipboard:changed', (item: { content: string }) => callback(item)),
+
+  // 自动更新
+  checkForUpdates: () => ipcRenderer.invoke('update:check'),
+  downloadUpdate: () => ipcRenderer.invoke('update:download'),
+  installUpdate: () => ipcRenderer.invoke('update:install'),
+  onUpdateChecking: (callback: () => void) => onIpcEvent('update:checking', callback),
+  onUpdateAvailable: (callback: (info: UpdateInfo) => void) => onIpcEvent('update:available', (info: UpdateInfo) => callback(info)),
+  onUpdateNotAvailable: (callback: (info: UpdateInfo) => void) => onIpcEvent('update:not-available', (info: UpdateInfo) => callback(info)),
+  onUpdateProgress: (callback: (progress: UpdateProgress) => void) => onIpcEvent('update:progress', (progress: UpdateProgress) => callback(progress)),
+  onUpdateDownloaded: (callback: (info: UpdateInfo) => void) => onIpcEvent('update:downloaded', (info: UpdateInfo) => callback(info)),
+  onUpdateError: (callback: (error: UpdateError) => void) => onIpcEvent('update:error', (error: UpdateError) => callback(error)),
 }
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI)
 
-export type { ElectronAPI, ClipboardItem }
+export type { ElectronAPI }
