@@ -9,7 +9,6 @@ yarn-error.log*
 # Production builds
 /dist
 /dist-electron
-/build
 /public/build
 
 # Environment variables

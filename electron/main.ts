@@ -13,14 +13,26 @@ let mainWindow: BrowserWindow | null = null
 function createWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize
 
+  // 设置图标路径
+  const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'build', 'icon.icns')
+    : path.join(__dirname, '../build/icon.icns')
+
+  // 计算默认窗口尺寸
+  const defaultWidth = Math.floor(width * 0.25)
+  const defaultHeight = Math.floor(height * 0.5)
+
   mainWindow = new BrowserWindow({
-    width: Math.floor(width * 0.25),
-    height: Math.floor(height * 0.5),
-    resizable: false,
+    width: defaultWidth,
+    height: defaultHeight,
+    minWidth: defaultWidth,
+    minHeight: defaultHeight,
+    resizable: true,
     frame: false,
     alwaysOnTop: true,
-    skipTaskbar: true,
-    show: false,
+    skipTaskbar: false,
+    show: true,
+    icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -47,7 +59,16 @@ app.whenReady().then(() => {
   clipboardManager.startWatching()
   hotkeyManager.registerGlobalShortcuts(mainWindow)
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    } else if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore()
+      }
+      if (!mainWindow.isVisible()) {
+        mainWindow.showInactive()
+      }
+    }
   })
 })
 
