@@ -1,6 +1,6 @@
 {
   "name": "copies",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "智能剪贴板管理器",
   "keywords": [
     "clipboard",
@@ -63,7 +63,7 @@
     "icon": "build/icon.icns",
     "publish": {
       "provider": "github",
-      "owner": "your-username",
+      "owner": "Cslove",
       "repo": "copies"
     },
     "mac": {
