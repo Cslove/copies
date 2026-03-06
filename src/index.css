@@ -24,6 +24,31 @@
   -webkit-text-size-adjust: 100%;
 }
 
+/* 响应式字体大小 - 随屏幕宽度变化 */
+@media (max-width: 640px) {
+  :root {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  :root {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1440px) {
+  :root {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1441px) {
+  :root {
+    font-size: 18px;
+  }
+}
+
 #root {
   width: 100%;
   min-height: 100vh;

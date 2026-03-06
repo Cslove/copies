@@ -27,7 +27,7 @@ export const Header: React.FC = () => {
         style={{ WebkitAppRegion: 'drag' } as any}
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold text-[#2c2c2c] m-0">Copies</span>
+          <span className="text-xl sm:text-2xl font-semibold text-[#2c2c2c] m-0">Copies</span>
         </div>
         <button
           className="absolute right-3 top-1/2 -translate-y-1/2 border-none bg-transparent p-0 m-0 cursor-pointer flex items-center justify-center"

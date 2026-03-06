@@ -21,8 +21,8 @@ function createWindow() {
     : path.join(__dirname, '../build/icon.icns')
 
   // 计算默认窗口尺寸
-  const defaultWidth = Math.floor(width * 0.8)
-  const defaultHeight = Math.floor(height * 0.8)
+  const defaultWidth = Math.floor(width * 0.3)
+  const defaultHeight = Math.floor(height * 0.6)
 
   mainWindow = new BrowserWindow({
     width: defaultWidth,

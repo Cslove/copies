@@ -18,3 +18,28 @@
   line-height: 1.7; /* 舒适的行距 */
   letter-spacing: 0.01em; /* 轻微字间距 */
 }
+
+/* 响应式字体大小 */
+@media (max-width: 640px) {
+  .paper {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .paper {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1440px) {
+  .paper {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1441px) {
+  .paper {
+    font-size: 18px;
+  }
+}

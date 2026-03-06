@@ -45,7 +45,7 @@ export const UpdateDialog: React.FC<UpdateDialogProps> = ({
       >
         {' '}
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-[#2c2c2c]">
+          <h3 className="text-lg sm:text-xl font-semibold text-[#2c2c2c]">
             {isDownloaded ? '更新已就绪！' : '发现新版本！'}
           </h3>
           <button
@@ -53,16 +53,16 @@ export const UpdateDialog: React.FC<UpdateDialogProps> = ({
             className="text-gray-600 hover:text-black transition-colors"
             aria-label="关闭对话框"
           >
-            <CloseIcon className="w-5 h-5" />
+            <CloseIcon className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
         {updateInfo && (
           <div className="mb-4">
-            <p className="text-sm text-gray-700 mb-2">
+            <p className="text-sm sm:text-base text-gray-700 mb-2">
               新版本: <span className="font-semibold text-black">{updateInfo.version}</span>
             </p>
             {updateInfo.releaseNotes && (
-              <div className="text-sm text-[#2c2c2c] bg-gray-50 border border-gray-300 p-3">
+              <div className="text-sm sm:text-base text-[#2c2c2c] bg-gray-50 border border-gray-300 p-3">
                 <p className="font-medium mb-1">更新说明:</p>
                 <div 
                   className="whitespace-pre-wrap overflow-y-auto max-h-32"
@@ -76,7 +76,7 @@ export const UpdateDialog: React.FC<UpdateDialogProps> = ({
         )}
         {isDownloading && updateProgress && (
           <div className="mb-4">
-            <div className="flex justify-between text-sm text-gray-700 mb-1">
+            <div className="flex justify-between text-sm sm:text-base text-gray-700 mb-1">
               <span>下载中...</span>
               <span>{Math.round(updateProgress.percent)}%</span>
             </div>
@@ -93,13 +93,13 @@ export const UpdateDialog: React.FC<UpdateDialogProps> = ({
             <>
               <button
                 onClick={onClose}
-                className="px-2 py-1 text-sm text-gray-700 hover:text-black transition-colors"
+                className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm sm:text-base text-gray-700 hover:text-black transition-colors"
               >
                 稍后提醒
               </button>
               <button
                 onClick={onDownload}
-                className="px-2 py-1 text-sm bg-black text-white hover:bg-gray-800 transition-colors"
+                className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm sm:text-base bg-black text-white hover:bg-gray-800 transition-colors"
               >
                 立即更新
               </button>
@@ -109,13 +109,13 @@ export const UpdateDialog: React.FC<UpdateDialogProps> = ({
             <>
               <button
                 onClick={onClose}
-                className="px-2 py-1 text-sm text-gray-700 hover:text-black transition-colors"
+                className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm sm:text-base text-gray-700 hover:text-black transition-colors"
               >
                 稍后安装
               </button>
               <button
                 onClick={onInstall}
-                className="px-2 py-1 text-sm bg-black text-white hover:bg-gray-800 transition-colors"
+                className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm sm:text-base bg-black text-white hover:bg-gray-800 transition-colors"
               >
                 重启并安装
               </button>

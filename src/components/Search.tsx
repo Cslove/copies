@@ -27,7 +27,7 @@ export const Search: React.FC<SearchProps> = ({
         placeholder={placeholder}
         value={value}
         onChange={handleChange}
-        className="w-full px-2 py-1 text-xs border rounded focus:outline-none focus:ring-2 focus:border-transparent"
+        className="w-full px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base border rounded focus:outline-none focus:ring-2 focus:border-transparent"
       />
       {value && (
         <button

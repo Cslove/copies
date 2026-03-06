@@ -45,7 +45,7 @@ export const Tabs: React.FC<TabsProps> = ({
                 }
               `}
             >
-              <span className="text-xs">{tab.label}</span>
+              <span className="text-sm sm:text-base">{tab.label}</span>
               {tab.closable && onDelete && (
                 <button
                   onClick={e => {
@@ -67,7 +67,7 @@ export const Tabs: React.FC<TabsProps> = ({
               onClick={onAdd}
               className="flex items-center gap-1 px-2 py-1 rounded-t border border-b-0 cursor-pointer transition-all duration-200 select-none whitespace-nowrap bg-transparent border-[#2c2c2c] shrink-0"
             >
-              <PlusIcon className="w-3 h-3" />
+              <PlusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           )}
         </div>

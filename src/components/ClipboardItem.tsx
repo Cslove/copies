@@ -33,7 +33,7 @@ const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title, className
   return (
     <button
       onClick={onClick}
-      className={`w-4 h-8 flex items-center justify-center transition-colors text-[#2c2c2c] opacity-60 hover:opacity-100 cursor-pointer ml-2 ${className}`}
+      className={`w-5 h-9 sm:w-6 sm:h-10 flex items-center justify-center transition-colors text-[#2c2c2c] opacity-60 hover:opacity-100 cursor-pointer ml-2 ${className}`}
       title={title}
     >
       {icon}
@@ -52,13 +52,13 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
       className={`group relative border rounded p-2.5 text-left cursor-pointer transition-colors duration-200 border-gray-100 hover:border-[#2c2c2c]`}
     >
       {/* 内容预览 - 最多两行，超出显示省略号 */}
-      <div className="font-medium word-break text-sm text-[#2c2c2c] leading-relaxed line-clamp-2">
+      <div className="font-medium word-break text-base sm:text-lg text-[#2c2c2c] leading-relaxed line-clamp-2">
         {item.preview}
       </div>
 
       {/* 底部信息 - 时间和操作按钮在一行，center 对齐 */}
       <div className="flex items-center justify-between">
-        <div className="text-xs text-[#2c2c2c] opacity-60 leading-none">
+        <div className="text-xs sm:text-sm text-[#2c2c2c] opacity-60 leading-none">
           {new Date(item.created_at).toLocaleString()}
         </div>
 
