@@ -54,12 +54,12 @@ export interface UpdateError {
  */
 export interface ElectronAPI {
   // 剪贴板操作
-  getClipboardItems: (limit?: number, offset?: number) => Promise<ClipboardItem[]>
+  getClipboardItems: () => Promise<ClipboardItem[]>
   saveItem: (content: string) => Promise<number>
   deleteItem: (id: number) => Promise<boolean>
   pasteItem: (id: number) => Promise<boolean>
   updateItem: (id: number, updates: Partial<ClipboardItem>) => Promise<boolean>
-  searchItems: (query: string, limit?: number) => Promise<ClipboardItem[]>
+  searchItems: (query: string) => Promise<ClipboardItem[]>
   getFavorites: () => Promise<ClipboardItem[]>
   getStats: () => Promise<{ total: number; favorites: number; today: number }>
   clearAllItems: () => Promise<boolean>

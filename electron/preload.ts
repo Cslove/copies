@@ -4,15 +4,13 @@ import type { ElectronAPI, UpdateInfo, UpdateProgress, UpdateError, ClipboardIte
 
 const electronAPI: ElectronAPI = {
   // 剪贴板操作
-  getClipboardItems: (limit: number = 50, offset: number = 0) =>
-    ipcRenderer.invoke('clipboard:getItems', limit, offset),
+  getClipboardItems: () => ipcRenderer.invoke('clipboard:getItems'),
   saveItem: (content: string) => ipcRenderer.invoke('clipboard:saveItem', content),
   deleteItem: (id: number) => ipcRenderer.invoke('clipboard:deleteItem', id),
   pasteItem: (id: number) => ipcRenderer.invoke('clipboard:pasteItem', id),
   updateItem: (id: number, updates: Partial<ClipboardItem>) =>
     ipcRenderer.invoke('clipboard:updateItem', id, updates),
-  searchItems: (query: string, limit: number = 50) =>
-    ipcRenderer.invoke('clipboard:searchItems', query, limit),
+  searchItems: (query: string) => ipcRenderer.invoke('clipboard:searchItems', query),
   getFavorites: () => ipcRenderer.invoke('clipboard:getFavorites'),
   getStats: () => ipcRenderer.invoke('clipboard:getStats'),
   clearAllItems: () => ipcRenderer.invoke('clipboard:clearAllItems'),

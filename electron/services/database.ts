@@ -128,7 +128,7 @@ class StorageManager {
     }
   }
 
-  public async getItems(limit: number = 50, offset: number = 0): Promise<ClipboardItem[]> {
+  public async getItems(): Promise<ClipboardItem[]> {
     try {
       // 按照置顶状态和创建时间排序
       const sortedItems = [...this.data.clipboard_items].sort((a, b) => {
@@ -139,7 +139,7 @@ class StorageManager {
         // 创建时间降序
         return b.created_at - a.created_at
       })
-      return sortedItems.slice(offset, offset + limit)
+      return sortedItems
     } catch (error) {
       console.error('Error getting items:', error)
       throw error
@@ -221,7 +221,7 @@ class StorageManager {
     }
   }
 
-  public async searchItems(query: string, limit: number = 50): Promise<ClipboardItem[]> {
+  public async searchItems(query: string): Promise<ClipboardItem[]> {
     try {
       const lowerQuery = query.toLowerCase()
       const items = this.data.clipboard_items
@@ -238,7 +238,6 @@ class StorageManager {
           // 再按创建时间降序
           return b.created_at - a.created_at
         })
-        .slice(0, limit)
 
       return items
     } catch (error) {

@@ -8,8 +8,8 @@ import { storageManager } from '../services/database'
  */
 export function registerClipboardHandlers(mainWindow: BrowserWindow | null) {
   // 获取剪贴板历史记录
-  ipcMain.handle('clipboard:getItems', async (_, limit: number = 50, offset: number = 0) => {
-    return await storageManager.getItems(limit, offset)
+  ipcMain.handle('clipboard:getItems', async () => {
+    return await storageManager.getItems()
   })
 
   // 保存剪贴板内容
@@ -28,8 +28,8 @@ export function registerClipboardHandlers(mainWindow: BrowserWindow | null) {
   })
 
   // 搜索剪贴板项
-  ipcMain.handle('clipboard:searchItems', async (_, query: string, limit: number = 50) => {
-    return await storageManager.searchItems(query, limit)
+  ipcMain.handle('clipboard:searchItems', async (_, query: string) => {
+    return await storageManager.searchItems(query)
   })
 
   // 获取收藏项

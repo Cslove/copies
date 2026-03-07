@@ -84,7 +84,7 @@ app.whenReady().then(() => {
         mainWindow.restore()
       }
       if (!mainWindow.isVisible()) {
-        mainWindow.showInactive()
+        hotkeyManager.showPanel()
       }
     }
   })
