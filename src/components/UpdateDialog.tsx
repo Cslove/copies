@@ -56,11 +56,10 @@ export const UpdateDialog: React.FC = () => {
               <div className="text-sm sm:text-base text-[#2c2c2c] bg-gray-50 border border-gray-300 p-3">
                 <p className="font-medium mb-1">更新说明:</p>
                 <div
-                  className="whitespace-pre-wrap overflow-y-auto max-h-32"
+                  className="overflow-y-auto max-h-32 **:mb-2 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_li]:ml-2 [&_p]:leading-relaxed [&_strong]:font-semibold [&_em]:italic [&_a]:text-blue-600 [&_a]:underline [&_h1]:text-lg [&_h1]:font-bold [&_h1]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mb-2 [&_h3]:text-sm [&_h3]:font-medium [&_h3]:mb-2 [&_code]:bg-gray-200 [&_code]:px-1 [&_code]:rounded [&_code]:text-xs [&_pre]:bg-gray-200 [&_pre]:p-2 [&_pre]:rounded [&_pre]:overflow-x-auto"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                  <p>{updateInfo.releaseNotes}</p>
-                </div>
+                  dangerouslySetInnerHTML={{ __html: updateInfo.releaseNotes }}
+                />
               </div>
             )}
           </div>
