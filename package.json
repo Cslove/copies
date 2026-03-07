@@ -1,6 +1,6 @@
 {
   "name": "copies",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "智能剪贴板管理器",
   "keywords": [
     "clipboard",
@@ -68,7 +68,10 @@
     },
     "mac": {
       "category": "public.app-category.productivity",
-      "target": "dmg",
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "icon": "build/icon.icns",
       "hardenedRuntime": true,
       "gatekeeperAssess": false

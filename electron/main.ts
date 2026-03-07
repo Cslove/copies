@@ -73,7 +73,7 @@ app.whenReady().then(() => {
     // 延迟 5 秒后检查更新，避免启动时阻塞
     setTimeout(() => {
       autoUpdater.checkForUpdates()
-    }, 5000)
+    }, 3000)
   }
 
   app.on('activate', () => {

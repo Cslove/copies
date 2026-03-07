@@ -1,21 +1,9 @@
 import React from 'react'
 import { hidePanel } from '@/utils/ipc'
 import { CloseIcon } from '@/assets/icons'
-import { useAutoUpdate } from '@/hooks/useAutoUpdate'
 import { UpdateDialog } from './UpdateDialog'
 
 export const Header: React.FC = () => {
-  const {
-    updateInfo,
-    updateProgress,
-    isDownloading,
-    isDownloaded,
-    showUpdateDialog,
-    downloadUpdate,
-    installUpdate,
-    closeUpdateDialog,
-  } = useAutoUpdate()
-
   const handleClose = () => {
     hidePanel()
   }
@@ -39,16 +27,7 @@ export const Header: React.FC = () => {
         </button>
       </header>
 
-      <UpdateDialog
-        show={showUpdateDialog}
-        updateInfo={updateInfo}
-        updateProgress={updateProgress}
-        isDownloading={isDownloading}
-        isDownloaded={isDownloaded}
-        onClose={closeUpdateDialog}
-        onDownload={downloadUpdate}
-        onInstall={installUpdate}
-      />
+      <UpdateDialog />
     </>
   )
 }

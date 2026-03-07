@@ -1,33 +1,24 @@
 import React from 'react'
 import { CloseIcon } from '@/assets/icons'
-import type { UpdateInfo, UpdateProgress } from '../../types'
-
-interface UpdateDialogProps {
-  show: boolean
-  updateInfo: UpdateInfo | null
-  updateProgress: UpdateProgress | null
-  isDownloading: boolean
-  isDownloaded: boolean
-  onClose: () => void
-  onDownload: () => void
-  onInstall: () => void
-}
+import { useAutoUpdate } from '@/hooks/useAutoUpdate'
 
 /**
  * 更新对话框组件
  * 显示更新信息、下载进度和操作按钮
  */
-export const UpdateDialog: React.FC<UpdateDialogProps> = ({
-  show,
-  updateInfo,
-  updateProgress,
-  isDownloading,
-  isDownloaded,
-  onClose,
-  onDownload,
-  onInstall,
-}) => {
-  if (!show) return null
+export const UpdateDialog: React.FC = () => {
+  const {
+    updateInfo,
+    updateProgress,
+    isDownloading,
+    isDownloaded,
+    showUpdateDialog,
+    downloadUpdate,
+    installUpdate,
+    closeUpdateDialog,
+  } = useAutoUpdate()
+
+  if (!showUpdateDialog) return null
 
   return (
     <div
@@ -49,7 +40,7 @@ export const UpdateDialog: React.FC<UpdateDialogProps> = ({
             {isDownloaded ? '更新已就绪！' : '发现新版本！'}
           </h3>
           <button
-            onClick={onClose}
+            onClick={closeUpdateDialog}
             className="text-gray-600 hover:text-black transition-colors"
             aria-label="关闭对话框"
           >
@@ -64,7 +55,7 @@ export const UpdateDialog: React.FC<UpdateDialogProps> = ({
             {updateInfo.releaseNotes && (
               <div className="text-sm sm:text-base text-[#2c2c2c] bg-gray-50 border border-gray-300 p-3">
                 <p className="font-medium mb-1">更新说明:</p>
-                <div 
+                <div
                   className="whitespace-pre-wrap overflow-y-auto max-h-32"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
@@ -92,13 +83,13 @@ export const UpdateDialog: React.FC<UpdateDialogProps> = ({
           {!isDownloaded && !isDownloading && (
             <>
               <button
-                onClick={onClose}
+                onClick={closeUpdateDialog}
                 className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm sm:text-base text-gray-700 hover:text-black transition-colors"
               >
                 稍后提醒
               </button>
               <button
-                onClick={onDownload}
+                onClick={downloadUpdate}
                 className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm sm:text-base bg-black text-white hover:bg-gray-800 transition-colors"
               >
                 立即更新
@@ -108,13 +99,13 @@ export const UpdateDialog: React.FC<UpdateDialogProps> = ({
           {isDownloaded && (
             <>
               <button
-                onClick={onClose}
+                onClick={closeUpdateDialog}
                 className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm sm:text-base text-gray-700 hover:text-black transition-colors"
               >
                 稍后安装
               </button>
               <button
-                onClick={onInstall}
+                onClick={installUpdate}
                 className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm sm:text-base bg-black text-white hover:bg-gray-800 transition-colors"
               >
                 重启并安装
