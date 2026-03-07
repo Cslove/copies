@@ -13,22 +13,23 @@ const __dirname = path.dirname(__filename)
 let mainWindow: BrowserWindow | null = null
 
 function createWindow() {
-  const { width, height } = screen.getPrimaryDisplay().workAreaSize
-
   // 设置图标路径
   const iconPath = app.isPackaged
     ? path.join(process.resourcesPath, 'build', 'icon.icns')
     : path.join(__dirname, '../build/icon.icns')
 
-  // 计算默认窗口尺寸
-  const defaultWidth = Math.floor(width * 0.3)
-  const defaultHeight = Math.floor(height * 0.6)
+  // 固定窗口尺寸（参考 MacBook Pro 13寸屏幕占比）
+  // 13寸屏幕分辨率约 2560x1600，30%宽 ≈ 768px，60%高 ≈ 960px
+  const defaultWidth = 400
+  const defaultHeight = 600
 
   mainWindow = new BrowserWindow({
     width: defaultWidth,
     height: defaultHeight,
     minWidth: defaultWidth,
     minHeight: defaultHeight,
+    maxWidth: 500,
+    maxHeight: 700,
     resizable: true,
     frame: false,
     alwaysOnTop: true,
