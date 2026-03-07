@@ -34,42 +34,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 4. 构建应用
-      - name: Build Electron app
-        run: npm run build
+      # 4. 构建并发布到 GitHub Release
+      # electron-builder 会自动创建 GitHub Release 并上传构建产物
+      - name: Build and publish Electron app
+        run: npm run build -- --publish always
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      # 5. 上传构建产物
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.os }}-build
-          path: dist/*
-          if-no-files-found: error
-
-  create-release:
-    needs: build-and-release
-    runs-on: macos-latest
-    permissions:
-      contents: write
-
-    steps:
-      # 1. 下载所有构建产物
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      # 2. 创建 Release
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            artifacts/**/*.dmg
-            artifacts/**/*.exe
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
