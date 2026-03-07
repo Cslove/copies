@@ -24,7 +24,6 @@
   -webkit-text-size-adjust: 100%;
 }
 
-/* 响应式字体大小 - 随屏幕宽度变化 */
 @media (max-width: 640px) {
   :root {
     font-size: 14px;

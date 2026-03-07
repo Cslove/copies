@@ -1,4 +1,3 @@
-// Paper.tsx
 import React from 'react'
 import styles from './Paper.module.css'
 

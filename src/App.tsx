@@ -32,7 +32,6 @@ function App() {
   const { pasteItem } = useClipboard()
   const { onShowPanel, onHidePanel } = useHotkey()
 
-  // Tabs 状态管理
   const [activeTab, setActiveTab] = useState('all')
   const [tabs, setTabs] = useState<TabItem[]>([
     { key: 'all', label: '全部', closable: false },
@@ -68,13 +67,11 @@ function App() {
     return cleanup
   }, [onHidePanel])
 
-  // 切换标签页时刷新数据
   const handleTabChange = (key: string) => {
     setActiveTab(key)
     fetchData()
   }
 
-  // 新增标签页
   const handleAddTab = () => {
     const newTabKey = `tab-${Date.now()}`
     const newTab: TabItem = {
@@ -86,12 +83,10 @@ function App() {
     setActiveTab(newTabKey)
   }
 
-  // 删除标签页
   const handleDeleteTab = (key: string) => {
     const newTabs = tabs.filter(tab => tab.key !== key)
     setTabs(newTabs)
 
-    // 如果删除的是当前激活的标签，切换到第一个标签
     if (activeTab === key && newTabs.length > 0) {
       setActiveTab(newTabs[0].key)
     }
@@ -140,13 +135,10 @@ function App() {
 
   return (
     <Paper className="w-full">
-      {/* 头部 */}
       <Header />
 
-      {/* 搜索栏 */}
       <Search value={searchQuery} onChange={setSearchQuery} />
 
-      {/* 标签页 */}
       <Tabs
         activeKey={activeTab}
         items={tabs}
@@ -156,7 +148,6 @@ function App() {
         extra={<div className="text-xs text-gray-500">共 {items.length} 项</div>}
       />
 
-      {/* 主内容区域 */}
       <main className="flex-1 overflow-hidden min-h-0">
         {window.electronAPI && isLoading ? (
           <LoadingSpinner />
@@ -192,7 +183,6 @@ function App() {
         )}
       </main>
 
-      {/* 页脚 */}
       <Footer />
     </Paper>
   )

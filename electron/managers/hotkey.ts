@@ -7,7 +7,6 @@ class HotkeyManager {
   public registerGlobalShortcuts(mainWindow: BrowserWindow | null): void {
     this.mainWindow = mainWindow
 
-    // 注册显示历史面板的快捷键 (Cmd+Option+V)
     const showPanelShortcut = 'CommandOrControl+Alt+V'
 
     const success = globalShortcut.register(showPanelShortcut, () => {
@@ -42,46 +41,34 @@ class HotkeyManager {
       return
     }
 
-    // 获取鼠标当前位置
     const cursorPosition = screen.getCursorScreenPoint()
-    // 获取鼠标所在的屏幕
     const display = screen.getDisplayNearestPoint(cursorPosition)
-    // 获取屏幕的工作区域（排除任务栏和 Dock）
     const workArea = display.workArea
 
     const windowWidth = this.mainWindow.getBounds().width
     const windowHeight = this.mainWindow.getBounds().height
 
-    // 以鼠标位置为基准，右下偏移 10px
     let x = cursorPosition.x + 10
     let y = cursorPosition.y + 10
 
-    // 边界检查：确保窗口不超出屏幕
-    // 右边界
     if (x + windowWidth > workArea.x + workArea.width) {
       x = cursorPosition.x - windowWidth - 10
     }
-    // 左边界
     if (x < workArea.x) {
       x = workArea.x + 10
     }
-    // 下边界
     if (y + windowHeight > workArea.y + workArea.height) {
       y = cursorPosition.y - windowHeight - 10
     }
-    // 上边界
     if (y < workArea.y) {
       y = workArea.y + 10
     }
 
-    // 设置窗口位置（取整）
     this.mainWindow.setPosition(Math.floor(x), Math.floor(y))
 
     if (process.platform === 'darwin') {
-      // macOS 多桌面适配：临时跨越所有空间，再取消
       this.mainWindow.setVisibleOnAllWorkspaces(true)
       this.mainWindow.showInactive()
-      // 下一 tick 取消跨空间，让窗口停留在当前桌面
       setImmediate(() => {
         if (!this.mainWindow!.isDestroyed()) {
           this.mainWindow!.setVisibleOnAllWorkspaces(false)
@@ -90,7 +77,6 @@ class HotkeyManager {
     } else {
       this.mainWindow.showInactive()
     }
-    // this.mainWindow.focus()
     this.mainWindow.webContents.send('show-panel')
   }
 
@@ -98,7 +84,6 @@ class HotkeyManager {
     globalShortcut.unregisterAll()
     this.registeredShortcuts = []
     this.mainWindow = null
-    console.log('Unregistered all global shortcuts')
   }
 
   public getRegisteredShortcuts(): string[] {

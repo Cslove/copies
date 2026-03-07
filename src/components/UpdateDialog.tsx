@@ -3,10 +3,6 @@ import { CloseIcon } from '@/assets/icons'
 import { useAutoUpdate } from '@/hooks/useAutoUpdate'
 import paperBg from '@/assets/paper.jpg'
 
-/**
- * 更新对话框组件
- * 显示更新信息、下载进度和操作按钮
- */
 export const UpdateDialog: React.FC = () => {
   const {
     updateInfo,

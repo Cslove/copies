@@ -1,6 +1,4 @@
-/* Paper.module.css */
 .paper {
-  /* 使用真实的纸张纹理图片 */
   height: 100vh;
   max-height: 100vh;
   background-image: url('/src/assets/paper.jpg');
@@ -11,15 +9,13 @@
     0 4px 12px rgba(0, 0, 0, 0.08),
     0 1px 2px rgba(0, 0, 0, 0.05);
 
-  /* 排版基础 */
-  color: #2c2c2c; /* 深灰，不是纯黑 */
+  color: #2c2c2c;
   font-family: 'MyPrintFont', Georgia, 'Times New Roman', '宋体', 'SimSun', 'Songti SC', serif;
   font-size: 16px;
-  line-height: 1.7; /* 舒适的行距 */
-  letter-spacing: 0.01em; /* 轻微字间距 */
+  line-height: 1.7;
+  letter-spacing: 0.01em;
 }
 
-/* 响应式字体大小 */
 @media (max-width: 640px) {
   .paper {
     font-size: 14px;

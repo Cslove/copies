@@ -1,13 +1,7 @@
-/**
- * 剪贴板 Store
- * 使用 Zustand 管理全局状态
- */
-
 import { create } from 'zustand'
 import type { ClipboardItem, ClipboardStats } from '@/types/index'
 
 interface ClipboardState {
-  // 数据
   items: ClipboardItem[]
   filteredItems: ClipboardItem[]
   searchQuery: string
@@ -17,7 +11,6 @@ interface ClipboardState {
   isLoading: boolean
   error: string | null
 
-  // 操作
   setItems: (items: ClipboardItem[]) => void
   addItem: (item: ClipboardItem) => void
   updateItem: (id: number, updates: Partial<ClipboardItem>) => void
@@ -30,7 +23,6 @@ interface ClipboardState {
   setError: (error: string | null) => void
   clearAll: () => void
 
-  // 辅助方法
   refreshFilteredItems: () => void
 }
 

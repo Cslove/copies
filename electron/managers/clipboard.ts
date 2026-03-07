@@ -29,7 +29,6 @@ class ClipboardManager {
       clearInterval(this.watchInterval)
       this.watchInterval = null
     }
-    console.log('Clipboard watching stopped')
   }
 
   public readFromClipboard(): string {

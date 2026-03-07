@@ -17,25 +17,20 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      # 1. 检出代码
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2. 设置 Node.js 环境
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      # 3. 安装依赖
       - name: Install dependencies
         run: npm ci
 
-      # 4. 构建并发布到 GitHub Release
-      # electron-builder 会自动创建 GitHub Release 并上传构建产物
       - name: Build and publish Electron app
         run: npm run build -- --publish always
         env:

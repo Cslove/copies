@@ -15,10 +15,6 @@ interface UseAutoUpdateReturn {
   closeUpdateDialog: () => void
 }
 
-/**
- * 自动更新 Hook
- * 处理应用自动更新的所有逻辑
- */
 export function useAutoUpdate(): UseAutoUpdateReturn {
   const [updateAvailable, setUpdateAvailable] = useState(false)
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null)
@@ -27,7 +23,6 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
   const [isDownloaded, setIsDownloaded] = useState(false)
   const [showUpdateDialog, setShowUpdateDialog] = useState(false)
 
-  // 检查更新
   const checkForUpdates = useCallback(async () => {
     try {
       await window.electronAPI?.checkForUpdates()
@@ -36,7 +31,6 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
     }
   }, [])
 
-  // 下载更新
   const downloadUpdate = useCallback(async () => {
     try {
       setIsDownloading(true)
@@ -47,7 +41,6 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
     }
   }, [])
 
-  // 安装更新
   const installUpdate = useCallback(async () => {
     try {
       await window.electronAPI?.installUpdate()
@@ -56,7 +49,6 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
     }
   }, [])
 
-  // 打开更新文件夹
   const openUpdateFolder = useCallback(async (folderPath?: string) => {
     try {
       await window.electronAPI?.openUpdateFolder(folderPath)
@@ -65,14 +57,12 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
     }
   }, [])
 
-  // 关闭更新对话框
   const closeUpdateDialog = useCallback(() => {
     setShowUpdateDialog(false)
   }, [])
 
   useEffect(() => {
     if (!window.electronAPI) return
-    // 监听更新事件
     const unsubscribeChecking = window.electronAPI.onUpdateChecking(() => {
       console.log('正在检查更新...')
     })
@@ -106,7 +96,6 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
       setIsDownloading(false)
     })
 
-    // 延迟检查更新
     setTimeout(checkForUpdates, 3000)
 
     return () => {

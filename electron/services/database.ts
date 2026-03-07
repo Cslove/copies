@@ -48,8 +48,6 @@ class StorageManager {
         const maxId = Math.max(...this.data.clipboard_items.map(item => item.id))
         this.nextId = maxId + 1
       }
-
-      console.log('JSON storage initialized at:', this.dataPath)
     } catch (error) {
       console.error('Failed to initialize storage:', error)
       throw error
@@ -61,7 +59,6 @@ class StorageManager {
       const content = fs.readFileSync(this.dataPath, 'utf-8')
       this.data = JSON.parse(content) as ClipboardData
 
-      // 验证数据结构
       if (!Array.isArray(this.data.clipboard_items)) {
         console.warn('Invalid data structure, resetting')
         this.data = { clipboard_items: [] }
@@ -96,7 +93,6 @@ class StorageManager {
         return existingItem.id
       }
 
-      // 创建新项目
       const newItem: ClipboardItem = {
         id: this.nextId++,
         content,
@@ -130,13 +126,10 @@ class StorageManager {
 
   public async getItems(): Promise<ClipboardItem[]> {
     try {
-      // 按照置顶状态和创建时间排序
       const sortedItems = [...this.data.clipboard_items].sort((a, b) => {
-        // 置顶的排在前面
         if (a.is_pinned !== b.is_pinned) {
           return b.is_pinned ? 1 : -1
         }
-        // 创建时间降序
         return b.created_at - a.created_at
       })
       return sortedItems
@@ -185,7 +178,6 @@ class StorageManager {
         return false
       }
 
-      // 更新字段
       if (updates.content !== undefined) {
         item.content = updates.content
       }
@@ -231,11 +223,9 @@ class StorageManager {
             item.preview.toLowerCase().includes(lowerQuery)
         )
         .sort((a, b) => {
-          // 先按使用次数降序
           if (b.used_count !== a.used_count) {
             return b.used_count - a.used_count
           }
-          // 再按创建时间降序
           return b.created_at - a.created_at
         })
 
@@ -294,8 +284,6 @@ class StorageManager {
   }
 
   public close(): void {
-    // JSON 文件存储不需要关闭连接
-    console.log('Storage manager closed')
   }
 }
 

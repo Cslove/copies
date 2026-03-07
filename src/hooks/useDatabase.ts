@@ -1,8 +1,3 @@
-/**
- * 数据库操作 Hook
- * 封装所有数据库相关的操作
- */
-
 import { useState, useCallback } from 'react'
 import type { ClipboardItem, ClipboardStats } from '@/types/index'
 import * as ipc from '@/utils/ipc'
@@ -12,9 +7,6 @@ export const useDatabase = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  /**
-   * 加载剪贴板项目列表
-   */
   const loadItems = useCallback(async () => {
     try {
       setIsLoading(true)
@@ -32,15 +24,11 @@ export const useDatabase = () => {
     }
   }, [])
 
-  /**
-   * 保存剪贴板项目
-   */
   const saveItem = useCallback(
     async (content: string): Promise<number | null> => {
       try {
         setError(null)
         const id = await ipc.saveItem(content)
-        // 重新加载列表
         await loadItems()
         return id
       } catch (err) {
@@ -53,9 +41,6 @@ export const useDatabase = () => {
     [loadItems]
   )
 
-  /**
-   * 删除剪贴板项目
-   */
   const deleteItem = useCallback(async (id: number): Promise<boolean> => {
     try {
       setError(null)
@@ -72,9 +57,6 @@ export const useDatabase = () => {
     }
   }, [])
 
-  /**
-   * 更新剪贴板项目
-   */
   const updateItem = useCallback(
     async (id: number, updates: Partial<ClipboardItem>): Promise<boolean> => {
       try {
@@ -98,9 +80,6 @@ export const useDatabase = () => {
     []
   )
 
-  /**
-   * 搜索剪贴板项目
-   */
   const searchItems = useCallback(
     async (query: string): Promise<ClipboardItem[]> => {
       try {
@@ -117,9 +96,6 @@ export const useDatabase = () => {
     []
   )
 
-  /**
-   * 获取收藏的项目
-   */
   const getFavorites = useCallback(async (): Promise<ClipboardItem[]> => {
     try {
       setError(null)
@@ -133,9 +109,6 @@ export const useDatabase = () => {
     }
   }, [])
 
-  /**
-   * 获取统计数据
-   */
   const getStats = useCallback(async (): Promise<ClipboardStats | null> => {
     try {
       setError(null)
@@ -149,9 +122,6 @@ export const useDatabase = () => {
     }
   }, [])
 
-  /**
-   * 清空所有项目
-   */
   const clearAllItems = useCallback(async (): Promise<boolean> => {
     try {
       setError(null)

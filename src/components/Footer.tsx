@@ -18,7 +18,6 @@ export const Footer: React.FC<FooterProps> = ({ year = new Date().getFullYear() 
   const [appVersion, setAppVersion] = useState<string>('')
 
   useEffect(() => {
-    // 获取应用版本
     const fetchVersion = async () => {
       try {
         const version = await window.electronAPI?.getAppVersion()

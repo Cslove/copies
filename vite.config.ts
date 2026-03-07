@@ -8,7 +8,6 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
@@ -51,14 +50,13 @@ export default defineConfig({
           },
         },
         onstart(options) {
-          // 当预加载脚本变化时，自动重启 Electron 渲染进程
           options.reload()
         },
       },
     }),
   ],
   server: {
-    open: true, // Open the browser window
+    open: true,
   },
   resolve: {
     alias: {

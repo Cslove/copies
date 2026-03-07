@@ -29,7 +29,6 @@ export const Tabs: React.FC<TabsProps> = ({
   return (
     <div className={`mt-3 mb-3 mx-4 shrink-0 border-b border-[#2c2c2c] ${className}`}>
       <div className="flex items-center gap-1">
-        {/* Tab 列表 */}
         <div className="flex items-center gap-1 flex-1 overflow-x-auto scrollbar-hide">
           {items.map(tab => (
             <div
@@ -72,7 +71,6 @@ export const Tabs: React.FC<TabsProps> = ({
           )}
         </div>
 
-        {/* Extra 内容 */}
         {extra && <div className="flex items-center ml-2 shrink-0">{extra}</div>}
       </div>
     </div>
