@@ -15,15 +15,12 @@ export const isElectron = (): boolean => {
 /**
  * 获取剪贴板项目列表
  */
-export const getClipboardItems = async (
-  limit: number = 50,
-  offset: number = 0
-): Promise<ClipboardItem[]> => {
+export const getClipboardItems = async (): Promise<ClipboardItem[]> => {
   if (!isElectron()) {
     console.warn('Not running in Electron environment')
     return []
   }
-  return await window.electronAPI!.getClipboardItems(limit, offset)
+  return await window.electronAPI!.getClipboardItems()
 }
 
 /**
@@ -73,12 +70,12 @@ export const updateItem = async (id: number, updates: Partial<ClipboardItem>): P
 /**
  * 搜索剪贴板项目
  */
-export const searchItems = async (query: string, limit: number = 50): Promise<ClipboardItem[]> => {
+export const searchItems = async (query: string): Promise<ClipboardItem[]> => {
   if (!isElectron()) {
     console.warn('Not running in Electron environment')
     return []
   }
-  return await window.electronAPI!.searchItems(query, limit)
+  return await window.electronAPI!.searchItems(query)
 }
 
 /**

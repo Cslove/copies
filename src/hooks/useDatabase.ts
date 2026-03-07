@@ -15,11 +15,11 @@ export const useDatabase = () => {
   /**
    * 加载剪贴板项目列表
    */
-  const loadItems = useCallback(async (limit: number = 50, offset: number = 0) => {
+  const loadItems = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
-      const data = await ipc.getClipboardItems(limit, offset)
+      const data = await ipc.getClipboardItems()
       setItems(data)
       return data
     } catch (err) {
@@ -102,10 +102,10 @@ export const useDatabase = () => {
    * 搜索剪贴板项目
    */
   const searchItems = useCallback(
-    async (query: string, limit: number = 50): Promise<ClipboardItem[]> => {
+    async (query: string): Promise<ClipboardItem[]> => {
       try {
         setError(null)
-        const results = await ipc.searchItems(query, limit)
+        const results = await ipc.searchItems(query)
         return results
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to search items'
