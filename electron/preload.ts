@@ -23,6 +23,9 @@ const electronAPI: ElectronAPI = {
   onShowPanel: (callback: () => void) => onIpcEvent('show-panel', callback),
   onHidePanel: (callback: () => void) => onIpcEvent('hide-panel', callback),
 
+  // 应用信息
+  getAppVersion: () => ipcRenderer.invoke('app:getVersion'),
+
   // 剪贴板监听
   onClipboardChange: (callback: (item: { content: string }) => void) =>
     onIpcEvent('clipboard:changed', (item: { content: string }) => callback(item)),
@@ -31,6 +34,7 @@ const electronAPI: ElectronAPI = {
   checkForUpdates: () => ipcRenderer.invoke('update:check'),
   downloadUpdate: () => ipcRenderer.invoke('update:download'),
   installUpdate: () => ipcRenderer.invoke('update:install'),
+  openUpdateFolder: (folderPath?: string) => ipcRenderer.invoke('update:openFolder', folderPath),
   onUpdateChecking: (callback: () => void) => onIpcEvent('update:checking', callback),
   onUpdateAvailable: (callback: (info: UpdateInfo) => void) => onIpcEvent('update:available', (info: UpdateInfo) => callback(info)),
   onUpdateNotAvailable: (callback: (info: UpdateInfo) => void) => onIpcEvent('update:not-available', (info: UpdateInfo) => callback(info)),

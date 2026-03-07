@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, app, ipcMain } from 'electron'
 import { registerClipboardHandlers } from './clipboardHandlers'
 import { registerPanelHandlers } from './panelHandlers'
 import { registerUpdateHandlers, setupAutoUpdaterEvents } from './updateHandlers'
@@ -11,6 +11,17 @@ export function registerAllHandlers(mainWindow: BrowserWindow | null) {
   registerClipboardHandlers(mainWindow)
   registerPanelHandlers(mainWindow)
   registerUpdateHandlers(mainWindow)
+  registerAppHandlers()
+}
+
+/**
+ * 注册应用相关的 IPC 处理器
+ */
+function registerAppHandlers() {
+  // 获取应用版本
+  ipcMain.handle('app:getVersion', () => {
+    return app.getVersion()
+  })
 }
 
 /**

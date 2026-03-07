@@ -11,6 +11,7 @@ interface UseAutoUpdateReturn {
   checkForUpdates: () => Promise<void>
   downloadUpdate: () => Promise<void>
   installUpdate: () => Promise<void>
+  openUpdateFolder: (folderPath?: string) => Promise<void>
   closeUpdateDialog: () => void
 }
 
@@ -52,6 +53,15 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
       await window.electronAPI?.installUpdate()
     } catch (error) {
       console.error('安装更新失败:', error)
+    }
+  }, [])
+
+  // 打开更新文件夹
+  const openUpdateFolder = useCallback(async (folderPath?: string) => {
+    try {
+      await window.electronAPI?.openUpdateFolder(folderPath)
+    } catch (error) {
+      console.error('打开更新文件夹失败:', error)
     }
   }, [])
 
@@ -119,6 +129,7 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
     checkForUpdates,
     downloadUpdate,
     installUpdate,
+    openUpdateFolder,
     closeUpdateDialog,
   }
 }

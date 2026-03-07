@@ -1,6 +1,7 @@
 import React from 'react'
 import { CloseIcon } from '@/assets/icons'
 import { useAutoUpdate } from '@/hooks/useAutoUpdate'
+import paperBg from '@/assets/paper.jpg'
 
 /**
  * 更新对话框组件
@@ -14,7 +15,7 @@ export const UpdateDialog: React.FC = () => {
     isDownloaded,
     showUpdateDialog,
     downloadUpdate,
-    installUpdate,
+    openUpdateFolder,
     closeUpdateDialog,
   } = useAutoUpdate()
 
@@ -28,7 +29,7 @@ export const UpdateDialog: React.FC = () => {
       <div
         className="border-2 border-black shadow-lg p-4 max-w-md w-full mx-4"
         style={{
-          backgroundImage: 'url(/src/assets/paper.jpg)',
+          backgroundImage: `url(${paperBg})`,
           backgroundSize: 'contain',
           backgroundRepeat: 'repeat',
           backgroundBlendMode: 'overlay',
@@ -104,10 +105,15 @@ export const UpdateDialog: React.FC = () => {
                 稍后安装
               </button>
               <button
-                onClick={installUpdate}
+                onClick={() => {
+                  openUpdateFolder(updateInfo?.downloadedFile)
+                  alert(
+                    '已打开更新应用所在目录，请手动解压并将其移动到访达/应用程序目录内，替换新应用'
+                  )
+                }}
                 className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm sm:text-base bg-black text-white hover:bg-gray-800 transition-colors"
               >
-                重启并安装
+                手动安装
               </button>
             </>
           )}

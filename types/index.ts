@@ -27,6 +27,7 @@ export interface UpdateInfo {
   }>
   path?: string
   sha512?: string
+  downloadedFile?: string
 }
 
 /**
@@ -69,6 +70,9 @@ export interface ElectronAPI {
   onShowPanel: (callback: () => void) => () => void
   onHidePanel: (callback: () => void) => () => void
 
+  // 应用信息
+  getAppVersion: () => Promise<string>
+
   // 剪贴板监听
   onClipboardChange: (callback: (item: { content: string }) => void) => () => void
 
@@ -76,6 +80,7 @@ export interface ElectronAPI {
   checkForUpdates: () => Promise<UpdateInfo | null>
   downloadUpdate: () => Promise<boolean>
   installUpdate: () => Promise<boolean>
+  openUpdateFolder: (folderPath?: string) => Promise<boolean>
   onUpdateChecking: (callback: () => void) => () => void
   onUpdateAvailable: (callback: (info: UpdateInfo) => void) => () => void
   onUpdateNotAvailable: (callback: (info: UpdateInfo) => void) => () => void
