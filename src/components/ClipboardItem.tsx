@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { DeleteIcon, CopyIcon } from '@/assets/icons'
+import { DeleteIcon, CopyIcon, CloseIcon } from '@/assets/icons'
+import paperBg from '@/assets/paper.jpg'
 import type { Category } from '@/types/index'
 
 interface ClipboardItem {
@@ -96,30 +97,53 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
             </button>
 
             {showCategoryMenu && (
-              <div className="absolute bottom-full left-0 mb-1 bg-white border border-gray-200 rounded shadow-lg z-10 min-w-30">
+              <div className="absolute bottom-full left-0 mb-2 z-10">
                 <div
-                  onClick={e => {
-                    e.stopPropagation()
-                    handleMoveToCategory(undefined)
+                  className="relative border border-[#2c2c2c] rounded shadow-lg overflow-hidden min-w-30"
+                  style={{
+                    backgroundImage: `url(${paperBg})`,
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'repeat',
+                    backgroundBlendMode: 'overlay',
                   }}
-                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
                 >
-                  最新
-                </div>
-                {categories
-                  .filter((cat: Category) => cat.id !== 0)
-                  .map((category: Category) => (
+                  <button
+                    onClick={e => {
+                      e.stopPropagation()
+                      setShowCategoryMenu(false)
+                    }}
+                    className="absolute top-1 right-1 w-4 h-4 flex items-center justify-center text-[#2c2c2c] opacity-60 hover:opacity-100 hover:bg-[#2c2c2c]/10 rounded transition-all cursor-pointer"
+                    title="关闭"
+                  >
+                    <CloseIcon />
+                  </button>
+
+                  <div className="pt-5 pb-2 px-2">
                     <div
-                      key={category.id}
                       onClick={e => {
                         e.stopPropagation()
-                        handleMoveToCategory(category.id)
+                        handleMoveToCategory(undefined)
                       }}
-                      className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                      className="px-2 py-1 text-sm text-[#2c2c2c] cursor-pointer hover:bg-[#2c2c2c]/10 rounded transition-all duration-200 whitespace-nowrap"
                     >
-                      {category.name}
+                      最新
                     </div>
-                  ))}
+                    {categories
+                      .filter((cat: Category) => cat.id !== 0)
+                      .map((category: Category) => (
+                        <div
+                          key={category.id}
+                          onClick={e => {
+                            e.stopPropagation()
+                            handleMoveToCategory(category.id)
+                          }}
+                          className="px-4 py-2.5 text-sm text-[#2c2c2c] cursor-pointer hover:bg-[#2c2c2c]/10 rounded transition-all duration-200 whitespace-nowrap"
+                        >
+                          {category.name}
+                        </div>
+                      ))}
+                  </div>
+                </div>
               </div>
             )}
           </div>
