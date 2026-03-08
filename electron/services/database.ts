@@ -68,6 +68,20 @@ class StorageManager {
 
   private saveData(): void {
     try {
+      const sixHoursAgo = Date.now() - 6 * 60 * 60 * 1000
+      const initialLength = this.data.clipboard_items.length
+      this.data.clipboard_items = this.data.clipboard_items.filter(item => 
+        item.is_favorite || 
+        item.is_pinned || 
+        item.category_id !== undefined && item.category_id !== null ||
+        item.updated_at > sixHoursAgo
+      )
+      
+      const cleanedCount = initialLength - this.data.clipboard_items.length
+      if (cleanedCount > 0) {
+        console.log(`Cleaned up ${cleanedCount} old items from "最新" category`)
+      }
+      
       fs.writeFileSync(this.dataPath, JSON.stringify(this.data, null, 2), 'utf-8')
     } catch (error) {
       console.error('Error saving data:', error)

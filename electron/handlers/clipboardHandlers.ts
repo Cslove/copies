@@ -7,6 +7,7 @@ export function registerClipboardHandlers(mainWindow: BrowserWindow | null) {
     const item = await storageManager.getItemById(id)
     if (item) {
       clipboardManager.writeToClipboard(item.content)
+      await storageManager.updateItem(id, { used_count: item.used_count + 1 })
       return true
     }
     return false
