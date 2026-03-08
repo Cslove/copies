@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { PlusIcon, MoreIcon, PinIcon, DeleteIcon, EditIcon } from '@/assets/icons'
 import type { Category } from '@/types/index'
 import { useDatabase } from '@/hooks/useDatabase'
-import { PopoverMenu, MenuItem } from './PopoverMenu'
+import { PopoverMenu, PopoverMenuTrigger, PopoverMenuContent } from './PopoverMenu'
 
 export interface TabItem {
   key: string
@@ -33,9 +33,7 @@ export const Tabs: React.FC<TabsProps> = ({
   const [isEditingCategory, setIsEditingCategory] = useState(false)
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null)
   const [editingCategoryName, setEditingCategoryName] = useState('')
-  const [activeMenuTab, setActiveMenuTab] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const menuTriggerRefs = useRef<Map<string, HTMLButtonElement>>(new Map())
 
   const loadCategories = useCallback(async () => {
     const cats = await getCategories()
@@ -138,7 +136,6 @@ export const Tabs: React.FC<TabsProps> = ({
     setIsEditingCategory(true)
     setEditingCategoryId(categoryId)
     setEditingCategoryName(categoryName)
-    setActiveMenuTab(null)
   }
 
   const handleConfirmEditCategory = async () => {
@@ -219,22 +216,55 @@ export const Tabs: React.FC<TabsProps> = ({
                   {isPinned && <PinIcon className="w-3 h-3" filled={true} />}
                   <span className="text-sm sm:text-base">{tab.label}</span>
                   {!isDefaultCategory && (
-                    <button
-                      ref={ref => {
-                        if (ref) {
-                          menuTriggerRefs.current.set(tab.key, ref)
-                        }
-                      }}
-                      onClick={e => {
-                        e.stopPropagation()
-                        setActiveMenuTab(activeMenuTab === tab.key ? null : tab.key)
-                      }}
-                      className="ml-0.5 cursor-pointer opacity-0 group-hover:opacity-100 hover:bg-gray-300/50 rounded p-1 transition-all duration-200 z-10 flex items-center justify-center"
-                      aria-label="更多操作"
-                      style={{ minWidth: '20px', minHeight: '20px' }}
-                    >
-                      <MoreIcon className="w-3 h-3" />
-                    </button>
+                    <PopoverMenu>
+                      <PopoverMenuTrigger>
+                        <button
+                          className="ml-0.5 cursor-pointer opacity-0 group-hover:opacity-100 hover:bg-gray-300/50 rounded p-1 transition-all duration-200 z-10 flex items-center justify-center"
+                          aria-label="更多操作"
+                          style={{ minWidth: '20px', minHeight: '20px' }}
+                        >
+                          <MoreIcon className="w-3 h-3" />
+                        </button>
+                      </PopoverMenuTrigger>
+                      <PopoverMenuContent
+                        items={[
+                          {
+                            id: 'edit',
+                            label: '编辑',
+                            icon: <EditIcon className="w-3 h-3" />,
+                            onClick: () => {
+                              if (category) {
+                                handleStartEditCategory(category.id, category.name)
+                              }
+                            },
+                          },
+                          {
+                            id: 'pin',
+                            label: category?.is_pinned ? '取消置顶' : '置顶',
+                            icon: category?.is_pinned ? (
+                              <PinIcon className="w-3 h-3" filled={true} />
+                            ) : (
+                              <PinIcon className="w-3 h-3" />
+                            ),
+                            onClick: () => {
+                              if (category) {
+                                if (category.is_pinned) {
+                                  handleUnpinCategory(category.id)
+                                } else {
+                                  handlePinCategory(category.id)
+                                }
+                              }
+                            },
+                          },
+                          {
+                            id: 'delete',
+                            label: '删除',
+                            icon: <DeleteIcon className="w-3 h-3" />,
+                            onClick: () => handleDeleteTab(tab.key),
+                          },
+                        ]}
+                      />
+                    </PopoverMenu>
                   )}
                 </div>
               </div>
@@ -269,64 +299,6 @@ export const Tabs: React.FC<TabsProps> = ({
         {extra && <div className="flex items-center ml-2 shrink-0">{extra}</div>}
       </div>
 
-      {/* 将 PopoverMenu 移到 overflow 容器外部 */}
-      {tabs.map(tab => {
-        const category = getCategoryById(tab.key)
-        const isDefaultCategory = tab.key === '0'
-
-        if (isDefaultCategory) return null
-
-        const menuItems: MenuItem[] = [
-          {
-            id: 'edit',
-            label: '编辑',
-            icon: <EditIcon className="w-3 h-3" />,
-            onClick: () => {
-              if (category) {
-                handleStartEditCategory(category.id, category.name)
-              }
-            },
-          },
-          {
-            id: 'pin',
-            label: category?.is_pinned ? '取消置顶' : '置顶',
-            icon: category?.is_pinned ? (
-              <PinIcon className="w-3 h-3" filled={true} />
-            ) : (
-              <PinIcon className="w-3 h-3" />
-            ),
-            onClick: () => {
-              if (category) {
-                if (category.is_pinned) {
-                  handleUnpinCategory(category.id)
-                } else {
-                  handlePinCategory(category.id)
-                }
-              }
-            },
-          },
-          {
-            id: 'delete',
-            label: '删除',
-            icon: <DeleteIcon className="w-3 h-3" />,
-            onClick: () => handleDeleteTab(tab.key),
-          },
-        ]
-
-        const triggerRef = {
-          current: menuTriggerRefs.current.get(tab.key) || null
-        } as React.RefObject<HTMLElement>
-
-        return (
-          <PopoverMenu
-            key={`menu-${tab.key}`}
-            visible={activeMenuTab === tab.key}
-            onClose={() => setActiveMenuTab(null)}
-            items={menuItems}
-            triggerRef={triggerRef}
-          />
-        )
-      })}
     </div>
   )
 }

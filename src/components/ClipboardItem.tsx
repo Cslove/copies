@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react'
+import React from 'react'
 import { DeleteIcon, CopyIcon } from '@/assets/icons'
-import { PopoverMenu, MenuItem } from './PopoverMenu'
+import { PopoverMenu, PopoverMenuTrigger, PopoverMenuContent, MenuItem } from './PopoverMenu'
 import type { Category } from '@/types/index'
 
 interface ClipboardItem {
@@ -53,8 +53,6 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
   onTogglePin: _onTogglePin,
   onMoveToCategory,
 }) => {
-  const [showCategoryMenu, setShowCategoryMenu] = useState(false)
-  const categoryButtonRef = useRef<HTMLButtonElement>(null)
 
   const getCategoryName = (categoryId?: number): string => {
     if (categoryId === undefined || categoryId === 0) {
@@ -107,24 +105,17 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
           </div>
 
           <div className="relative">
-            <button
-              ref={categoryButtonRef}
-              onClick={e => {
-                e.stopPropagation()
-                setShowCategoryMenu(!showCategoryMenu)
-              }}
-              className="text-xs sm:text-sm text-[#2c2c2c] opacity-60 hover:opacity-100 cursor-pointer hover:underline"
-              title="移动到分类"
-            >
-              {getCategoryName(item.category_id)}
-            </button>
-
-            <PopoverMenu
-              visible={showCategoryMenu}
-              onClose={() => setShowCategoryMenu(false)}
-              items={getCategoryMenuItems()}
-              triggerRef={categoryButtonRef}
-            />
+            <PopoverMenu>
+              <PopoverMenuTrigger>
+                <button
+                  className="text-xs sm:text-sm text-[#2c2c2c] opacity-60 hover:opacity-100 cursor-pointer hover:underline"
+                  title="移动到分类"
+                >
+                  {getCategoryName(item.category_id)}
+                </button>
+              </PopoverMenuTrigger>
+              <PopoverMenuContent items={getCategoryMenuItems()} />
+            </PopoverMenu>
           </div>
         </div>
 
