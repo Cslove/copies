@@ -82,49 +82,47 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
           <div className="text-xs sm:text-sm text-[#2c2c2c] opacity-60 leading-none">
             {new Date(item.created_at).toLocaleString()}
           </div>
-          
-          {onMoveToCategory && (
-            <div className="relative">
-              <button
-                onClick={e => {
-                  e.stopPropagation()
-                  setShowCategoryMenu(!showCategoryMenu)
-                }}
-                className="text-xs sm:text-sm text-[#2c2c2c] opacity-60 hover:opacity-100 cursor-pointer hover:underline"
-                title="移动到分类"
-              >
-                {getCategoryName(item.category_id)}
-              </button>
-              
-              {showCategoryMenu && (
-                <div className="absolute bottom-full left-0 mb-1 bg-white border border-gray-200 rounded shadow-lg z-10 min-w-30">
-                  <div
-                    onClick={e => {
-                      e.stopPropagation()
-                      handleMoveToCategory(undefined)
-                    }}
-                    className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
-                  >
-                    最新
-                  </div>
-                  {categories
-                    .filter((cat: Category) => cat.id !== 0)
-                    .map((category: Category) => (
-                      <div
-                        key={category.id}
-                        onClick={e => {
-                          e.stopPropagation()
-                          handleMoveToCategory(category.id)
-                        }}
-                        className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
-                      >
-                        {category.name}
-                      </div>
-                    ))}
+
+          <div className="relative">
+            <button
+              onClick={e => {
+                e.stopPropagation()
+                setShowCategoryMenu(!showCategoryMenu)
+              }}
+              className="text-xs sm:text-sm text-[#2c2c2c] opacity-60 hover:opacity-100 cursor-pointer hover:underline"
+              title="移动到分类"
+            >
+              {getCategoryName(item.category_id)}
+            </button>
+
+            {showCategoryMenu && (
+              <div className="absolute bottom-full left-0 mb-1 bg-white border border-gray-200 rounded shadow-lg z-10 min-w-30">
+                <div
+                  onClick={e => {
+                    e.stopPropagation()
+                    handleMoveToCategory(undefined)
+                  }}
+                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                >
+                  最新
                 </div>
-              )}
-            </div>
-          )}
+                {categories
+                  .filter((cat: Category) => cat.id !== 0)
+                  .map((category: Category) => (
+                    <div
+                      key={category.id}
+                      onClick={e => {
+                        e.stopPropagation()
+                        handleMoveToCategory(category.id)
+                      }}
+                      className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                    >
+                      {category.name}
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex space-x-0.5">

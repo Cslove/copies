@@ -230,3 +230,24 @@ export const PlusIcon: React.FC<PlusIconProps> = ({ className = '' }) => {
     </svg>
   )
 }
+
+interface UnpinIconProps {
+  className?: string
+}
+
+export const UnpinIcon: React.FC<UnpinIconProps> = ({ className = '' }) => {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* 空心圆圈图标 */}
+      <circle
+        cx="8"
+        cy="8"
+        r="5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}

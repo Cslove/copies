@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { PlusIcon, CloseIcon } from '@/assets/icons'
+import { PlusIcon, CloseIcon, PinIcon, UnpinIcon } from '@/assets/icons'
 import type { Category } from '@/types/index'
 import { useDatabase } from '@/hooks/useDatabase'
 
@@ -128,9 +128,7 @@ export const Tabs: React.FC<TabsProps> = ({
                   }
                 `}
               >
-                {isPinned && (
-                  <span className="text-[10px] text-gray-400">📌</span>
-                )}
+                {isPinned && <PinIcon className="w-3 h-3" filled={true} />}
                 <span className="text-sm sm:text-base">{tab.label}</span>
                 {tab.closable && !isDefaultCategory && (
                   <button
@@ -157,7 +155,11 @@ export const Tabs: React.FC<TabsProps> = ({
                     className="ml-0.5 cursor-pointer opacity-0 group-hover:opacity-100 hover:bg-gray-300/50 rounded p-0.5 transition-all duration-200"
                     aria-label={category.is_pinned ? '取消置顶' : '置顶'}
                   >
-                    <span className="text-xs">{category.is_pinned ? '📌' : '○'}</span>
+                    {category.is_pinned ? (
+                      <PinIcon className="w-3 h-3" filled={true} />
+                    ) : (
+                      <UnpinIcon className="w-3 h-3" />
+                    )}
                   </button>
                 )}
               </div>
