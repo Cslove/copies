@@ -16,6 +16,12 @@ const storageProxy = createProxy<StorageManager>('StorageManager', [
   'getFavorites',
   'getStats',
   'clearAllItems',
+  'getCategories',
+  'createCategory',
+  'updateCategory',
+  'deleteCategory',
+  'getItemsByCategory',
+  'moveItemToCategory',
 ])
 
 const panelProxy = createProxy<PanelManager>('PanelManager', ['showPanel', 'hidePanel'])
@@ -37,6 +43,13 @@ const electronAPI: ElectronAPI = {
   getFavorites: () => storageProxy.getFavorites(),
   getStats: () => storageProxy.getStats(),
   clearAllItems: () => storageProxy.clearAllItems(),
+
+  getCategories: () => storageProxy.getCategories(),
+  createCategory: (name: string) => storageProxy.createCategory(name),
+  updateCategory: (id: number, updates: any) => storageProxy.updateCategory(id, updates),
+  deleteCategory: (id: number) => storageProxy.deleteCategory(id),
+  getItemsByCategory: (categoryId?: number) => storageProxy.getItemsByCategory(categoryId),
+  moveItemToCategory: (itemId: number, categoryId?: number) => storageProxy.moveItemToCategory(itemId, categoryId),
 
   showPanel: () => panelProxy.showPanel(),
   hidePanel: () => panelProxy.hidePanel(),

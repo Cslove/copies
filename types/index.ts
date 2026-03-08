@@ -11,6 +11,18 @@ export interface ClipboardItem {
   created_at: number
   updated_at: number
   used_count: number
+  category_id?: number
+}
+
+/**
+ * 分类标签接口
+ */
+export interface Category {
+  id: number
+  name: string
+  is_pinned: boolean
+  created_at: number
+  updated_at: number
 }
 
 /**
@@ -63,6 +75,14 @@ export interface ElectronAPI {
   getFavorites: () => Promise<ClipboardItem[]>
   getStats: () => Promise<{ total: number; favorites: number; today: number }>
   clearAllItems: () => Promise<boolean>
+
+  // 分类操作
+  getCategories: () => Promise<Category[]>
+  createCategory: (name: string) => Promise<Category>
+  updateCategory: (id: number, updates: Partial<Category>) => Promise<boolean>
+  deleteCategory: (id: number) => Promise<boolean>
+  getItemsByCategory: (categoryId?: number) => Promise<ClipboardItem[]>
+  moveItemToCategory: (itemId: number, categoryId?: number) => Promise<boolean>
 
   // 面板控制
   showPanel: () => Promise<boolean>

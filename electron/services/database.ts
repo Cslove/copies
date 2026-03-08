@@ -1,29 +1,25 @@
-import * as path from 'path'
 import * as crypto from 'crypto'
 import * as fs from 'fs'
 import { app } from 'electron'
 import { expose } from '../utils/ipcProxy'
-import type { ClipboardItem } from '../../types/index'
+import type { ClipboardItem, Category } from '../../types/index'
 
 interface ClipboardData {
   clipboard_items: ClipboardItem[]
+  categories: Category[]
 }
 
 class StorageManager {
-  private dataPath: string
-  private data: ClipboardData
-  private nextId: number
-
-  constructor() {
-    const userDataPath = app.getPath('userData')
-    this.dataPath = path.join(userDataPath, 'clipboard_data.json')
-    this.data = { clipboard_items: [] }
-    this.nextId = 1
-  }
+  private dataPath: string = ''
+  private data: ClipboardData = { clipboard_items: [], categories: [] }
+  private nextId: number = 1
+  private nextCategoryId: number = 1
 
   public init(): void {
     try {
       const userDataPath = app.getPath('userData')
+      this.dataPath = `${userDataPath}/clipboard_data.json`
+      
       if (!fs.existsSync(userDataPath)) {
         fs.mkdirSync(userDataPath, { recursive: true })
       }
@@ -32,11 +28,19 @@ class StorageManager {
         this.loadData()
       } else {
         this.saveData()
+        this.initializeDefaultCategory()
       }
 
       if (this.data.clipboard_items.length > 0) {
         const maxId = Math.max(...this.data.clipboard_items.map(item => item.id))
         this.nextId = maxId + 1
+      }
+
+      if (this.data.categories.length > 0) {
+        const maxCategoryId = Math.max(...this.data.categories.map(cat => cat.id))
+        this.nextCategoryId = maxCategoryId + 1
+      } else {
+        this.initializeDefaultCategory()
       }
     } catch (error) {
       console.error('Failed to initialize storage:', error)
@@ -51,11 +55,14 @@ class StorageManager {
 
       if (!Array.isArray(this.data.clipboard_items)) {
         console.warn('Invalid data structure, resetting')
-        this.data = { clipboard_items: [] }
+        this.data = { clipboard_items: [], categories: [] }
+      }
+      if (!Array.isArray(this.data.categories)) {
+        this.data.categories = []
       }
     } catch (error) {
       console.error('Error loading data:', error)
-      this.data = { clipboard_items: [] }
+      this.data = { clipboard_items: [], categories: [] }
     }
   }
 
@@ -123,7 +130,7 @@ class StorageManager {
         if (a.is_pinned !== b.is_pinned) {
           return b.is_pinned ? 1 : -1
         }
-        return b.created_at - a.created_at
+        return b.updated_at - a.updated_at
       })
       return sortedItems
     } catch (error) {
@@ -139,7 +146,7 @@ class StorageManager {
         if (a.is_pinned !== b.is_pinned) {
           return b.is_pinned ? 1 : -1
         }
-        return b.created_at - a.created_at
+        return b.updated_at - a.updated_at
       })
     } catch (error) {
       console.error('Error getting all items:', error)
@@ -210,6 +217,152 @@ class StorageManager {
     }
   }
 
+  private initializeDefaultCategory(): void {
+    const defaultCategory: Category = {
+      id: 0,
+      name: '最新',
+      is_pinned: true,
+      created_at: Date.now(),
+      updated_at: Date.now(),
+    }
+    this.data.categories = [defaultCategory]
+    this.nextCategoryId = 1
+    this.saveData()
+  }
+
+  @expose('StorageManager')
+  public async createCategory(name: string): Promise<Category> {
+    try {
+      const now = Date.now()
+      const newCategory: Category = {
+        id: this.nextCategoryId++,
+        name,
+        is_pinned: false,
+        created_at: now,
+        updated_at: now,
+      }
+      this.data.categories.push(newCategory)
+      this.saveData()
+      return newCategory
+    } catch (error) {
+      console.error('Error creating category:', error)
+      throw error
+    }
+  }
+
+  @expose('StorageManager')
+  public async updateCategory(id: number, updates: Partial<Category>): Promise<boolean> {
+    try {
+      const category = this.data.categories.find(cat => cat.id === id)
+      if (!category || id === 0) {
+        return false
+      }
+
+      if (updates.name !== undefined) {
+        category.name = updates.name
+      }
+      if (updates.is_pinned !== undefined) {
+        category.is_pinned = updates.is_pinned
+      }
+      category.updated_at = Date.now()
+      this.saveData()
+      return true
+    } catch (error) {
+      console.error('Error updating category:', error)
+      throw error
+    }
+  }
+
+  @expose('StorageManager')
+  public async deleteCategory(id: number): Promise<boolean> {
+    try {
+      if (id === 0) {
+        return false
+      }
+
+      const deleted = this.data.categories.some(cat => cat.id === id)
+      if (deleted) {
+        this.data.categories = this.data.categories.filter(cat => cat.id !== id)
+        this.data.clipboard_items = this.data.clipboard_items.filter(item => item.category_id !== id)
+        this.saveData()
+      }
+      return deleted
+    } catch (error) {
+      console.error('Error deleting category:', error)
+      throw error
+    }
+  }
+
+  @expose('StorageManager')
+  public async getCategories(): Promise<Category[]> {
+    try {
+      const sorted = [...this.data.categories].sort((a, b) => {
+        if (a.id === 0) return -1
+        if (b.id === 0) return 1
+        if (a.is_pinned !== b.is_pinned) {
+          return b.is_pinned ? 1 : -1
+        }
+        return a.created_at - b.created_at
+      })
+      return sorted
+    } catch (error) {
+      console.error('Error getting categories:', error)
+      throw error
+    }
+  }
+
+  @expose('StorageManager')
+  public async getCategoryById(id: number): Promise<Category | null> {
+    try {
+      const category = this.data.categories.find(cat => cat.id === id)
+      return category || null
+    } catch (error) {
+      console.error('Error getting category by id:', error)
+      throw error
+    }
+  }
+
+  @expose('StorageManager')
+  public async getItemsByCategory(categoryId?: number): Promise<ClipboardItem[]> {
+    try {
+      let items = this.data.clipboard_items
+      
+      if (categoryId === undefined) {
+        items = items.filter(item => !item.category_id)
+      } else {
+        items = items.filter(item => item.category_id === categoryId)
+      }
+
+      return items.sort((a, b) => {
+        if (a.is_pinned !== b.is_pinned) {
+          return b.is_pinned ? 1 : -1
+        }
+        return b.updated_at - a.updated_at
+      })
+    } catch (error) {
+      console.error('Error getting items by category:', error)
+      throw error
+    }
+  }
+
+  @expose('StorageManager')
+  public async moveItemToCategory(itemId: number, categoryId?: number): Promise<boolean> {
+    try {
+      const item = this.data.clipboard_items.find(item => item.id === itemId)
+      if (!item) {
+        return false
+      }
+
+      item.category_id = categoryId
+      item.updated_at = Date.now()
+      this.saveData()
+      return true
+    } catch (error) {
+      console.error('Error moving item to category:', error)
+      throw error
+    }
+  }
+
   @expose('StorageManager')
   public async searchItems(query: string): Promise<ClipboardItem[]> {
     try {
@@ -224,7 +377,7 @@ class StorageManager {
           if (b.used_count !== a.used_count) {
             return b.used_count - a.used_count
           }
-          return b.created_at - a.created_at
+          return b.updated_at - a.updated_at
         })
 
       return items
@@ -239,7 +392,7 @@ class StorageManager {
     try {
       const items = this.data.clipboard_items
         .filter(item => item.is_favorite)
-        .sort((a, b) => b.created_at - a.created_at)
+        .sort((a, b) => b.updated_at - a.updated_at)
 
       return items
     } catch (error) {

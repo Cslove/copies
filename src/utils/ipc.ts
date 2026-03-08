@@ -76,6 +76,54 @@ export const clearAllItems = async (): Promise<boolean> => {
   return await window.electronAPI!.clearAllItems()
 }
 
+export const getCategories = async (): Promise<Category[]> => {
+  if (!isElectron()) {
+    console.warn('Not running in Electron environment')
+    return []
+  }
+  return await window.electronAPI!.getCategories()
+}
+
+export const createCategory = async (name: string): Promise<Category> => {
+  if (!isElectron()) {
+    console.warn('Not running in Electron environment')
+    throw new Error('Not running in Electron environment')
+  }
+  return await window.electronAPI!.createCategory(name)
+}
+
+export const updateCategory = async (id: number, updates: Partial<Category>): Promise<boolean> => {
+  if (!isElectron()) {
+    console.warn('Not running in Electron environment')
+    return false
+  }
+  return await window.electronAPI!.updateCategory(id, updates)
+}
+
+export const deleteCategory = async (id: number): Promise<boolean> => {
+  if (!isElectron()) {
+    console.warn('Not running in Electron environment')
+    return false
+  }
+  return await window.electronAPI!.deleteCategory(id)
+}
+
+export const getItemsByCategory = async (categoryId?: number): Promise<ClipboardItem[]> => {
+  if (!isElectron()) {
+    console.warn('Not running in Electron environment')
+    return []
+  }
+  return await window.electronAPI!.getItemsByCategory(categoryId)
+}
+
+export const moveItemToCategory = async (itemId: number, categoryId?: number): Promise<boolean> => {
+  if (!isElectron()) {
+    console.warn('Not running in Electron environment')
+    return false
+  }
+  return await window.electronAPI!.moveItemToCategory(itemId, categoryId)
+}
+
 export const showPanel = async (): Promise<boolean> => {
   if (!isElectron()) {
     console.warn('Not running in Electron environment')

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { ClipboardItem, ClipboardStats } from '@/types/index'
+import type { ClipboardItem, ClipboardStats, Category } from '@/types/index'
 
 interface ClipboardState {
   items: ClipboardItem[]
@@ -10,6 +10,8 @@ interface ClipboardState {
   stats: ClipboardStats | null
   isLoading: boolean
   error: string | null
+  categories: Category[]
+  activeCategoryId: number | undefined
 
   setItems: (items: ClipboardItem[]) => void
   addItem: (item: ClipboardItem) => void
@@ -22,6 +24,8 @@ interface ClipboardState {
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
   clearAll: () => void
+  setCategories: (categories: Category[]) => void
+  setActiveCategory: (categoryId: number | undefined) => void
 
   refreshFilteredItems: () => void
 }
@@ -35,6 +39,8 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
   stats: null,
   isLoading: true,
   error: null,
+  categories: [],
+  activeCategoryId: undefined,
 
   setItems: items => {
     set({ items })
@@ -101,13 +107,30 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
       showPinnedOnly: false,
       stats: null,
       error: null,
+      categories: [],
+      activeCategoryId: undefined,
     })
   },
 
+  setCategories: categories => {
+    set({ categories })
+  },
+
+  setActiveCategory: categoryId => {
+    set({ activeCategoryId: categoryId })
+    get().refreshFilteredItems()
+  },
+
   refreshFilteredItems: () => {
-    const { items, searchQuery, showFavoritesOnly, showPinnedOnly } = get()
+    const { items, searchQuery, showFavoritesOnly, showPinnedOnly, activeCategoryId } = get()
 
     let filtered = [...items]
+
+    if (activeCategoryId !== undefined) {
+      filtered = filtered.filter(item => item.category_id === activeCategoryId)
+    } else {
+      filtered = filtered.filter(item => !item.category_id)
+    }
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()

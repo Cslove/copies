@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback } from 'react'
 import { ClipboardItemComponent } from '@/components/ClipboardItem'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { EmptyState } from '@/components/EmptyState'
@@ -6,7 +6,7 @@ import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { Paper } from '@/components/Paper'
 import { Search } from '@/components/Search'
-import { Tabs, TabItem } from '@/components/Tabs'
+import { Tabs } from '@/components/Tabs'
 import { useDatabase } from '@/hooks/useDatabase'
 import { useClipboard } from '@/hooks/useClipboard'
 import { useHotkey } from '@/hooks/useHotkey'
@@ -21,23 +21,24 @@ function App() {
     searchQuery,
     showFavoritesOnly,
     showPinnedOnly,
+    categories,
     setItems,
     setSearchQuery,
     deleteItem: storeDeleteItem,
     updateItem: storeUpdateItem,
     setLoading,
+    setActiveCategory,
   } = useClipboardStore()
 
-  const { loadItems, deleteItem, updateItem } = useDatabase()
+  const { 
+    loadItems, 
+    deleteItem, 
+    updateItem, 
+    getCategories, 
+    moveItemToCategory 
+  } = useDatabase()
   const { pasteItem } = useClipboard()
   const { onShowPanel, onHidePanel } = useHotkey()
-
-  const [activeTab, setActiveTab] = useState('all')
-  const [tabs, setTabs] = useState<TabItem[]>([
-    { key: 'all', label: '全部', closable: false },
-    { key: 'text', label: '文本', closable: true },
-    { key: 'image', label: '图片', closable: true },
-  ])
 
   const fetchData = useCallback(async () => {
     const isWebEnv = !window.electronAPI
@@ -47,9 +48,10 @@ function App() {
     } else {
       const loadedItems = await loadItems()
       setItems(loadedItems)
+      await getCategories()
     }
     setLoading(false)
-  }, [loadItems, setItems, setLoading])
+  }, [loadItems, setItems, setLoading, getCategories])
 
   useEffect(() => {
     fetchData()
@@ -67,29 +69,8 @@ function App() {
     return cleanup
   }, [onHidePanel])
 
-  const handleTabChange = (key: string) => {
-    setActiveTab(key)
-    fetchData()
-  }
-
-  const handleAddTab = () => {
-    const newTabKey = `tab-${Date.now()}`
-    const newTab: TabItem = {
-      key: newTabKey,
-      label: `新标签 ${tabs.length}`,
-      closable: true,
-    }
-    setTabs([...tabs, newTab])
-    setActiveTab(newTabKey)
-  }
-
-  const handleDeleteTab = (key: string) => {
-    const newTabs = tabs.filter(tab => tab.key !== key)
-    setTabs(newTabs)
-
-    if (activeTab === key && newTabs.length > 0) {
-      setActiveTab(newTabs[0].key)
-    }
+  const handleCategoryChange = (categoryId: number | undefined) => {
+    setActiveCategory(categoryId)
   }
 
   const handleItemClick = async (id: number) => {
@@ -131,6 +112,13 @@ function App() {
     }
   }
 
+  const handleMoveToCategory = async (itemId: number, categoryId?: number) => {
+    const success = await moveItemToCategory(itemId, categoryId)
+    if (success) {
+      await fetchData()
+    }
+  }
+
   const displayItems = searchQuery || showFavoritesOnly || showPinnedOnly ? filteredItems : items
 
   return (
@@ -140,11 +128,8 @@ function App() {
       <Search value={searchQuery} onChange={setSearchQuery} />
 
       <Tabs
-        activeKey={activeTab}
-        items={tabs}
-        onChange={handleTabChange}
-        onAdd={handleAddTab}
-        onDelete={handleDeleteTab}
+        onCategoryChange={handleCategoryChange}
+        onRefreshData={fetchData}
         extra={<div className="text-xs text-gray-500">共 {items.length} 项</div>}
       />
 
@@ -159,10 +144,12 @@ function App() {
                   <ClipboardItemComponent
                     key={item.id}
                     item={item}
+                    categories={categories}
                     onClick={handleItemClick}
                     onDelete={handleDeleteItem}
                     onToggleFavorite={handleToggleFavorite}
                     onTogglePin={handleTogglePin}
+                    onMoveToCategory={handleMoveToCategory}
                   />
                 ))
               ) : (
