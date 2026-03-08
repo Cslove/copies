@@ -23,6 +23,7 @@ function App() {
     showFavoritesOnly,
     showPinnedOnly,
     categories,
+    setCategories,
     setItems,
     setSearchQuery,
     deleteItem: storeDeleteItem,
@@ -43,10 +44,11 @@ function App() {
     } else {
       const loadedItems = await loadItems()
       setItems(loadedItems)
-      await getCategories()
+      const cats = await getCategories()
+      setCategories(cats)
     }
     setLoading(false)
-  }, [loadItems, setItems, setLoading, getCategories])
+  }, [loadItems, setItems, setLoading, getCategories, setCategories])
 
   useEffect(() => {
     fetchData()
