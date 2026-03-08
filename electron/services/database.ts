@@ -2,18 +2,8 @@ import * as path from 'path'
 import * as crypto from 'crypto'
 import * as fs from 'fs'
 import { app } from 'electron'
-
-interface ClipboardItem {
-  id: number
-  content: string
-  content_hash: string
-  preview: string
-  is_favorite: boolean
-  is_pinned: boolean
-  created_at: number
-  updated_at: number
-  used_count: number
-}
+import { expose } from '../utils/ipcProxy'
+import type { ClipboardItem } from '../../types/index'
 
 interface ClipboardData {
   clipboard_items: ClipboardItem[]
@@ -78,6 +68,7 @@ class StorageManager {
     }
   }
 
+  @expose()
   public async saveItem(content: string): Promise<number> {
     const contentHash = this.generateHash(content)
     const preview = this.generatePreview(content)
@@ -114,6 +105,7 @@ class StorageManager {
     }
   }
 
+  @expose()
   public async getItemById(id: number): Promise<ClipboardItem | null> {
     try {
       const item = this.data.clipboard_items.find(item => item.id === id)
@@ -124,6 +116,7 @@ class StorageManager {
     }
   }
 
+  @expose()
   public async getItems(): Promise<ClipboardItem[]> {
     try {
       const sortedItems = [...this.data.clipboard_items].sort((a, b) => {
@@ -139,6 +132,7 @@ class StorageManager {
     }
   }
 
+  @expose()
   public async getAllItems(): Promise<ClipboardItem[]> {
     try {
       return [...this.data.clipboard_items].sort((a, b) => {
@@ -153,6 +147,7 @@ class StorageManager {
     }
   }
 
+  @expose()
   public async deleteItem(id: number): Promise<boolean> {
     try {
       const initialLength = this.data.clipboard_items.length
@@ -170,6 +165,7 @@ class StorageManager {
     }
   }
 
+  @expose()
   public async updateItem(id: number, updates: Partial<ClipboardItem>): Promise<boolean> {
     try {
       const item = this.data.clipboard_items.find(item => item.id === id)
@@ -201,6 +197,7 @@ class StorageManager {
     }
   }
 
+  @expose()
   public async clearAllItems(): Promise<boolean> {
     try {
       this.data.clipboard_items = []
@@ -213,6 +210,7 @@ class StorageManager {
     }
   }
 
+  @expose()
   public async searchItems(query: string): Promise<ClipboardItem[]> {
     try {
       const lowerQuery = query.toLowerCase()
@@ -236,6 +234,7 @@ class StorageManager {
     }
   }
 
+  @expose()
   public async getFavorites(): Promise<ClipboardItem[]> {
     try {
       const items = this.data.clipboard_items
@@ -249,6 +248,7 @@ class StorageManager {
     }
   }
 
+  @expose()
   public async getStats(): Promise<{ total: number; favorites: number; today: number }> {
     try {
       const total = this.data.clipboard_items.length
@@ -287,5 +287,8 @@ class StorageManager {
   }
 }
 
+import { registerInstance } from '../utils/ipcProxy'
+
 export const storageManager = new StorageManager()
-export type { ClipboardItem }
+registerInstance(storageManager, 'StorageManager')
+export type { StorageManager }

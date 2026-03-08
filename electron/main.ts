@@ -1,5 +1,4 @@
 import { app, BrowserWindow, globalShortcut } from 'electron'
-import { autoUpdater } from 'electron-updater'
 import * as path from 'path'
 import { fileURLToPath } from 'url'
 import { clipboardManager } from './managers/clipboard'
@@ -61,12 +60,6 @@ app.whenReady().then(() => {
   registerAllHandlers(mainWindow)
 
   setupAllEventListeners(mainWindow)
-
-  if (app.isPackaged) {
-    setTimeout(() => {
-      autoUpdater.checkForUpdates()
-    }, 3000)
-  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

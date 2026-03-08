@@ -1,21 +1,45 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import { createProxy } from './utils/ipcProxy'
 import { onIpcEvent } from './utils/ipcEventManager'
 import type { ElectronAPI, UpdateInfo, UpdateProgress, UpdateError, ClipboardItem } from '../types/index'
+import type { StorageManager } from './services/database'
+import type { PanelManager } from './managers/panel'
+import type { UpdateManager } from './managers/update'
+
+const storageProxy = createProxy<StorageManager>('StorageManager', [
+  'getItems',
+  'saveItem',
+  'deleteItem',
+  'getItemById',
+  'updateItem',
+  'searchItems',
+  'getFavorites',
+  'getStats',
+  'clearAllItems',
+])
+
+const panelProxy = createProxy<PanelManager>('PanelManager', ['showPanel', 'hidePanel'])
+
+const updateProxy = createProxy<UpdateManager>('UpdateManager', [
+  'checkForUpdates',
+  'downloadUpdate',
+  'installUpdate',
+  'openUpdateFolder',
+])
 
 const electronAPI: ElectronAPI = {
-  getClipboardItems: () => ipcRenderer.invoke('clipboard:getItems'),
-  saveItem: (content: string) => ipcRenderer.invoke('clipboard:saveItem', content),
-  deleteItem: (id: number) => ipcRenderer.invoke('clipboard:deleteItem', id),
+  getClipboardItems: () => storageProxy.getItems(),
+  saveItem: (content: string) => storageProxy.saveItem(content),
+  deleteItem: (id: number) => storageProxy.deleteItem(id),
   pasteItem: (id: number) => ipcRenderer.invoke('clipboard:pasteItem', id),
-  updateItem: (id: number, updates: Partial<ClipboardItem>) =>
-    ipcRenderer.invoke('clipboard:updateItem', id, updates),
-  searchItems: (query: string) => ipcRenderer.invoke('clipboard:searchItems', query),
-  getFavorites: () => ipcRenderer.invoke('clipboard:getFavorites'),
-  getStats: () => ipcRenderer.invoke('clipboard:getStats'),
-  clearAllItems: () => ipcRenderer.invoke('clipboard:clearAllItems'),
+  updateItem: (id: number, updates: Partial<ClipboardItem>) => storageProxy.updateItem(id, updates),
+  searchItems: (query: string) => storageProxy.searchItems(query),
+  getFavorites: () => storageProxy.getFavorites(),
+  getStats: () => storageProxy.getStats(),
+  clearAllItems: () => storageProxy.clearAllItems(),
 
-  showPanel: () => ipcRenderer.invoke('panel:show'),
-  hidePanel: () => ipcRenderer.invoke('panel:hide'),
+  showPanel: () => panelProxy.showPanel(),
+  hidePanel: () => panelProxy.hidePanel(),
   onShowPanel: (callback: () => void) => onIpcEvent('show-panel', callback),
   onHidePanel: (callback: () => void) => onIpcEvent('hide-panel', callback),
 
@@ -24,10 +48,10 @@ const electronAPI: ElectronAPI = {
   onClipboardChange: (callback: (item: { content: string }) => void) =>
     onIpcEvent('clipboard:changed', (item: { content: string }) => callback(item)),
 
-  checkForUpdates: () => ipcRenderer.invoke('update:check'),
-  downloadUpdate: () => ipcRenderer.invoke('update:download'),
-  installUpdate: () => ipcRenderer.invoke('update:install'),
-  openUpdateFolder: (folderPath?: string) => ipcRenderer.invoke('update:openFolder', folderPath),
+  checkForUpdates: () => updateProxy.checkForUpdates(),
+  downloadUpdate: () => updateProxy.downloadUpdate(),
+  installUpdate: () => updateProxy.installUpdate(),
+  openUpdateFolder: (folderPath?: string) => updateProxy.openUpdateFolder(folderPath),
   onUpdateChecking: (callback: () => void) => onIpcEvent('update:checking', callback),
   onUpdateAvailable: (callback: (info: UpdateInfo) => void) => onIpcEvent('update:available', (info: UpdateInfo) => callback(info)),
   onUpdateNotAvailable: (callback: (info: UpdateInfo) => void) => onIpcEvent('update:not-available', (info: UpdateInfo) => callback(info)),
