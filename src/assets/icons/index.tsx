@@ -251,3 +251,42 @@ export const UnpinIcon: React.FC<UnpinIconProps> = ({ className = '' }) => {
     </svg>
   )
 }
+
+interface MoreIconProps {
+  className?: string
+}
+
+export const MoreIcon: React.FC<MoreIconProps> = ({ className = '' }) => {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="3" cy="8" r="1.5" fill="currentColor" />
+      <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+      <circle cx="13" cy="8" r="1.5" fill="currentColor" />
+    </svg>
+  )
+}
+
+interface EditIconProps {
+  className?: string
+}
+
+export const EditIcon: React.FC<EditIconProps> = ({ className = '' }) => {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M11.5 2.5L13.5 4.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10.5 3.5L3.5 10.5V13.5H6.5L13.5 6.5L10.5 3.5Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}

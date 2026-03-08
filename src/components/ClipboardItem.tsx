@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { DeleteIcon, CopyIcon } from '@/assets/icons'
 import { PopoverMenu, MenuItem } from './PopoverMenu'
 import type { Category } from '@/types/index'
@@ -54,6 +54,7 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
   onMoveToCategory,
 }) => {
   const [showCategoryMenu, setShowCategoryMenu] = useState(false)
+  const categoryButtonRef = useRef<HTMLButtonElement>(null)
 
   const getCategoryName = (categoryId?: number): string => {
     if (categoryId === undefined || categoryId === 0) {
@@ -107,6 +108,7 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
 
           <div className="relative">
             <button
+              ref={categoryButtonRef}
               onClick={e => {
                 e.stopPropagation()
                 setShowCategoryMenu(!showCategoryMenu)
@@ -121,6 +123,7 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
               visible={showCategoryMenu}
               onClose={() => setShowCategoryMenu(false)}
               items={getCategoryMenuItems()}
+              triggerRef={categoryButtonRef}
             />
           </div>
         </div>
