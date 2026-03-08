@@ -17,6 +17,7 @@ function App() {
   const {
     items,
     filteredItems,
+    activeCategoryId,
     isLoading,
     searchQuery,
     showFavoritesOnly,
@@ -113,7 +114,8 @@ function App() {
     }
   }
 
-  const displayItems = searchQuery || showFavoritesOnly || showPinnedOnly ? filteredItems : items
+  const displayItems =
+    searchQuery || showFavoritesOnly || showPinnedOnly || activeCategoryId ? filteredItems : items
 
   return (
     <Paper className="w-full">
