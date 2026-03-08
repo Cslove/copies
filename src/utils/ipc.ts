@@ -1,4 +1,4 @@
-import type { ClipboardItem, ClipboardStats } from '@/types/index'
+import type { Category, ClipboardItem, ClipboardStats } from '@/types/index'
 
 export const isElectron = (): boolean => {
   return typeof window !== 'undefined' && window.electronAPI !== undefined
