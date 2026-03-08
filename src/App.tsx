@@ -30,13 +30,7 @@ function App() {
     setActiveCategory,
   } = useClipboardStore()
 
-  const { 
-    loadItems, 
-    deleteItem, 
-    updateItem, 
-    getCategories, 
-    moveItemToCategory 
-  } = useDatabase()
+  const { loadItems, deleteItem, updateItem, getCategories, moveItemToCategory } = useDatabase()
   const { pasteItem } = useClipboard()
   const { onShowPanel, onHidePanel } = useHotkey()
 
@@ -137,7 +131,7 @@ function App() {
         {window.electronAPI && isLoading ? (
           <LoadingSpinner />
         ) : (
-          <div className="h-full overflow-y-auto px-4 custom-scrollbar">
+          <div className="h-full pt-3 relative overflow-y-auto px-4 custom-scrollbar">
             <div className="space-y-3 pb-4">
               {displayItems.length > 0 ? (
                 displayItems.map(item => (

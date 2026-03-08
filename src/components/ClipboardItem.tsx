@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { DeleteIcon, CopyIcon, CloseIcon } from '@/assets/icons'
-import paperBg from '@/assets/paper.jpg'
+import { DeleteIcon, CopyIcon } from '@/assets/icons'
+import { PopoverMenu, MenuItem } from './PopoverMenu'
 import type { Category } from '@/types/index'
 
 interface ClipboardItem {
@@ -67,12 +67,33 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
     if (onMoveToCategory) {
       onMoveToCategory(item.id, categoryId)
     }
-    setShowCategoryMenu(false)
+  }
+
+  const getCategoryMenuItems = (): MenuItem[] => {
+    const items: MenuItem[] = [
+      {
+        id: 'default',
+        label: '最新',
+        onClick: () => handleMoveToCategory(undefined),
+      },
+    ]
+
+    categories
+      .filter((cat: Category) => cat.id !== 0)
+      .forEach((category: Category) => {
+        items.push({
+          id: category.id.toString(),
+          label: category.name,
+          onClick: () => handleMoveToCategory(category.id),
+        })
+      })
+
+    return items
   }
 
   return (
     <div
-      className={`group relative border rounded p-2.5 text-left cursor-pointer transition-colors duration-200 border-gray-100 hover:border-[#2c2c2c]`}
+      className={`group border rounded p-2.5 text-left cursor-pointer transition-colors duration-200 border-gray-100 hover:border-[#2c2c2c]`}
     >
       <div className="font-medium word-break text-base sm:text-lg text-[#2c2c2c] leading-relaxed line-clamp-2">
         {item.preview}
@@ -81,7 +102,7 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="text-xs sm:text-sm text-[#2c2c2c] opacity-60 leading-none">
-            {new Date(item.created_at).toLocaleString()}
+            {new Date(item.updated_at).toLocaleString()}
           </div>
 
           <div className="relative">
@@ -96,56 +117,11 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
               {getCategoryName(item.category_id)}
             </button>
 
-            {showCategoryMenu && (
-              <div className="absolute bottom-full left-0 mb-2 z-10">
-                <div
-                  className="relative border border-[#2c2c2c] rounded shadow-lg overflow-hidden min-w-30"
-                  style={{
-                    backgroundImage: `url(${paperBg})`,
-                    backgroundSize: 'cover',
-                    backgroundRepeat: 'repeat',
-                    backgroundBlendMode: 'overlay',
-                  }}
-                >
-                  <button
-                    onClick={e => {
-                      e.stopPropagation()
-                      setShowCategoryMenu(false)
-                    }}
-                    className="absolute top-1 right-1 w-4 h-4 flex items-center justify-center text-[#2c2c2c] opacity-60 hover:opacity-100 hover:bg-[#2c2c2c]/10 rounded transition-all cursor-pointer"
-                    title="关闭"
-                  >
-                    <CloseIcon />
-                  </button>
-
-                  <div className="pt-5 pb-2 px-2">
-                    <div
-                      onClick={e => {
-                        e.stopPropagation()
-                        handleMoveToCategory(undefined)
-                      }}
-                      className="px-2 py-1 text-sm text-[#2c2c2c] cursor-pointer hover:bg-[#2c2c2c]/10 rounded transition-all duration-200 whitespace-nowrap"
-                    >
-                      最新
-                    </div>
-                    {categories
-                      .filter((cat: Category) => cat.id !== 0)
-                      .map((category: Category) => (
-                        <div
-                          key={category.id}
-                          onClick={e => {
-                            e.stopPropagation()
-                            handleMoveToCategory(category.id)
-                          }}
-                          className="px-4 py-2.5 text-sm text-[#2c2c2c] cursor-pointer hover:bg-[#2c2c2c]/10 rounded transition-all duration-200 whitespace-nowrap"
-                        >
-                          {category.name}
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </div>
-            )}
+            <PopoverMenu
+              visible={showCategoryMenu}
+              onClose={() => setShowCategoryMenu(false)}
+              items={getCategoryMenuItems()}
+            />
           </div>
         </div>
 

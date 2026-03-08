@@ -55,9 +55,9 @@ export default defineConfig({
       },
     }),
   ],
-  server: {
-    open: true,
-  },
+  // server: {
+  //   open: true,
+  // },
   resolve: {
     alias: {
       '@': join(__dirname, 'src'),

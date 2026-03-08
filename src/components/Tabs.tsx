@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { PlusIcon, CloseIcon, PinIcon, UnpinIcon } from '@/assets/icons'
 import type { Category } from '@/types/index'
 import { useDatabase } from '@/hooks/useDatabase'
@@ -27,6 +27,9 @@ export const Tabs: React.FC<TabsProps> = ({
   const [categories, setCategories] = useState<Category[]>([])
   const [tabs, setTabs] = useState<TabItem[]>([])
   const [activeTab, setActiveTab] = useState('0')
+  const [isAddingCategory, setIsAddingCategory] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const loadCategories = useCallback(async () => {
     const cats = await getCategories()
@@ -37,6 +40,12 @@ export const Tabs: React.FC<TabsProps> = ({
   useEffect(() => {
     loadCategories()
   }, [loadCategories])
+
+  useEffect(() => {
+    if (isAddingCategory && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [isAddingCategory])
 
   const updateTabsFromCategories = (cats: Category[]) => {
     const newTabs: TabItem[] = cats.map(cat => ({
@@ -54,15 +63,34 @@ export const Tabs: React.FC<TabsProps> = ({
     onCategoryChange(categoryId === 0 ? undefined : categoryId)
   }
 
-  const handleAddTab = async () => {
-    const categoryName = prompt('请输入分类名称：')
-    if (categoryName && categoryName.trim()) {
-      const newCategory = await createCategory(categoryName.trim())
+  const handleAddTab = () => {
+    setIsAddingCategory(true)
+    setNewCategoryName('')
+  }
+
+  const handleConfirmAddCategory = async () => {
+    if (newCategoryName.trim()) {
+      const newCategory = await createCategory(newCategoryName.trim())
       if (newCategory) {
         await loadCategories()
         setActiveTab(newCategory.id.toString())
         onCategoryChange(newCategory.id)
       }
+    }
+    setIsAddingCategory(false)
+    setNewCategoryName('')
+  }
+
+  const handleCancelAddCategory = () => {
+    setIsAddingCategory(false)
+    setNewCategoryName('')
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleConfirmAddCategory()
+    } else if (e.key === 'Escape') {
+      handleCancelAddCategory()
     }
   }
 
@@ -106,7 +134,7 @@ export const Tabs: React.FC<TabsProps> = ({
   }
 
   return (
-    <div className={`mt-3 mb-3 mx-4 shrink-0 border-b border-[#2c2c2c] ${className}`}>
+    <div className={`mt-2 mx-4 shrink-0 border-b border-[#2c2c2c] ${className}`}>
       <div className="flex items-center gap-1">
         <div className="flex items-center gap-1 flex-1 overflow-x-auto scrollbar-hide">
           {tabs.map(tab => {
@@ -166,13 +194,29 @@ export const Tabs: React.FC<TabsProps> = ({
             )
           })}
 
-          {/* 新增按钮 */}
-          <div
-            onClick={handleAddTab}
-            className="flex items-center gap-1 px-2 py-1 rounded-t border border-b-0 cursor-pointer transition-all duration-200 select-none whitespace-nowrap bg-transparent border-[#2c2c2c] shrink-0"
-          >
-            <PlusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          </div>
+          {/* 新增按钮或输入框 */}
+          {isAddingCategory ? (
+            <div className="flex items-center px-2 py-1 rounded-t border border-b-0 bg-transparent border-[#2c2c2c] shrink-0">
+              <input
+                ref={inputRef}
+                type="text"
+                value={newCategoryName}
+                onChange={e => setNewCategoryName(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onBlur={handleCancelAddCategory}
+                placeholder="输入分类名"
+                className="w-32 text-sm sm:text-base bg-transparent border-none outline-none text-[#2c2c2c] placeholder:text-[#2c2c2c]/50"
+                autoFocus
+              />
+            </div>
+          ) : (
+            <div
+              onClick={handleAddTab}
+              className="flex items-center gap-1 px-2 py-1 rounded-t border border-b-0 cursor-pointer transition-all duration-200 select-none whitespace-nowrap bg-transparent border-[#2c2c2c] shrink-0"
+            >
+              <PlusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </div>
+          )}
         </div>
 
         {extra && <div className="flex items-center ml-2 shrink-0">{extra}</div>}
