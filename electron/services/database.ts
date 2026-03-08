@@ -68,7 +68,7 @@ class StorageManager {
     }
   }
 
-  @expose()
+  @expose('StorageManager')
   public async saveItem(content: string): Promise<number> {
     const contentHash = this.generateHash(content)
     const preview = this.generatePreview(content)
@@ -105,7 +105,7 @@ class StorageManager {
     }
   }
 
-  @expose()
+  @expose('StorageManager')
   public async getItemById(id: number): Promise<ClipboardItem | null> {
     try {
       const item = this.data.clipboard_items.find(item => item.id === id)
@@ -116,7 +116,7 @@ class StorageManager {
     }
   }
 
-  @expose()
+  @expose('StorageManager')
   public async getItems(): Promise<ClipboardItem[]> {
     try {
       const sortedItems = [...this.data.clipboard_items].sort((a, b) => {
@@ -132,7 +132,7 @@ class StorageManager {
     }
   }
 
-  @expose()
+  @expose('StorageManager')
   public async getAllItems(): Promise<ClipboardItem[]> {
     try {
       return [...this.data.clipboard_items].sort((a, b) => {
@@ -147,7 +147,7 @@ class StorageManager {
     }
   }
 
-  @expose()
+  @expose('StorageManager')
   public async deleteItem(id: number): Promise<boolean> {
     try {
       const initialLength = this.data.clipboard_items.length
@@ -165,7 +165,7 @@ class StorageManager {
     }
   }
 
-  @expose()
+  @expose('StorageManager')
   public async updateItem(id: number, updates: Partial<ClipboardItem>): Promise<boolean> {
     try {
       const item = this.data.clipboard_items.find(item => item.id === id)
@@ -197,7 +197,7 @@ class StorageManager {
     }
   }
 
-  @expose()
+  @expose('StorageManager')
   public async clearAllItems(): Promise<boolean> {
     try {
       this.data.clipboard_items = []
@@ -210,7 +210,7 @@ class StorageManager {
     }
   }
 
-  @expose()
+  @expose('StorageManager')
   public async searchItems(query: string): Promise<ClipboardItem[]> {
     try {
       const lowerQuery = query.toLowerCase()
@@ -234,7 +234,7 @@ class StorageManager {
     }
   }
 
-  @expose()
+  @expose('StorageManager')
   public async getFavorites(): Promise<ClipboardItem[]> {
     try {
       const items = this.data.clipboard_items
@@ -248,7 +248,7 @@ class StorageManager {
     }
   }
 
-  @expose()
+  @expose('StorageManager')
   public async getStats(): Promise<{ total: number; favorites: number; today: number }> {
     try {
       const total = this.data.clipboard_items.length

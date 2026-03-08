@@ -1,29 +1,32 @@
 import { ipcMain, ipcRenderer } from 'electron'
 
 const instances = new Map<string, any>()
+const exposedMethods = new Map<string, { instance: any; descriptor: PropertyDescriptor }>()
 
-export function expose() {
+export function expose(className?: string) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor): PropertyDescriptor {
-    const className = target.constructor.name
-    const channel = `${className.toLowerCase()}:${propertyKey}`
+    // 如果提供了类名，使用提供的类名；否则使用 target.constructor.name
+    const actualClassName = className || target.constructor.name
+    const channel = `${actualClassName.toLowerCase()}:${propertyKey}`
     
-    if (typeof ipcMain !== 'undefined') {
-      ipcMain.handle(channel, async (_, ...args: any[]) => {
-        const instance = instances.get(className)
-        if (!instance) {
-          throw new Error(`Instance not found for ${className}`)
-        }
-        return descriptor.value.apply(instance, args)
-      })
-    }
+    exposedMethods.set(channel, { instance: null, descriptor })
     
-    ;(descriptor.value as any).channel = channel
     return descriptor
   }
 }
 
 export function registerInstance<T>(instance: T, className: string): void {
   instances.set(className, instance)
+  
+  exposedMethods.forEach(({ descriptor }, channel) => {
+    if (channel.startsWith(className.toLowerCase() + ':')) {
+      if (typeof ipcMain !== 'undefined') {
+        ipcMain.handle(channel, async (_, ...args: any[]) => {
+          return descriptor.value.apply(instance, args)
+        })
+      }
+    }
+  })
 }
 
 export type ExposedMethods<T> = {

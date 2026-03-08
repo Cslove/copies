@@ -8,7 +8,7 @@ class UpdateManager {
     autoUpdater.autoDownload = false
   }
 
-  @expose()
+  @expose('UpdateManager')
   public async checkForUpdates(): Promise<any> {
     try {
       return await autoUpdater.checkForUpdates()
@@ -18,7 +18,7 @@ class UpdateManager {
     }
   }
 
-  @expose()
+  @expose('UpdateManager')
   public async downloadUpdate(): Promise<boolean> {
     try {
       await autoUpdater.downloadUpdate()
@@ -29,7 +29,7 @@ class UpdateManager {
     }
   }
 
-  @expose()
+  @expose('UpdateManager')
   public async installUpdate(): Promise<boolean> {
     try {
       autoUpdater.quitAndInstall()
@@ -40,7 +40,7 @@ class UpdateManager {
     }
   }
 
-  @expose()
+  @expose('UpdateManager')
   public async openUpdateFolder(customFolderPath?: string): Promise<boolean> {
     try {
       const { shell } = await import('electron')

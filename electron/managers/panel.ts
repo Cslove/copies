@@ -9,13 +9,13 @@ class PanelManager {
     this.mainWindow = mainWindow
   }
 
-  @expose()
+  @expose('PanelManager')
   public async showPanel(): Promise<boolean> {
     hotkeyManager.showPanel()
     return true
   }
 
-  @expose()
+  @expose('PanelManager')
   public async hidePanel(): Promise<boolean> {
     if (this.mainWindow) {
       this.mainWindow.hide()
