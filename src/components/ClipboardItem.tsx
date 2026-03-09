@@ -1,6 +1,7 @@
 import React from 'react'
-import { DeleteIcon, CopyIcon } from '@/assets/icons'
+import { DeleteIcon, CopyIcon, MoreIcon, PinIcon } from '@/assets/icons'
 import { PopoverMenu, PopoverMenuTrigger, PopoverMenuContent, MenuItem } from './PopoverMenu'
+import { useClipboardActions } from '@/hooks/useClipboardActions'
 import type { Category } from '@/types/index'
 
 interface ClipboardItem {
@@ -19,11 +20,6 @@ interface ClipboardItem {
 interface ClipboardItemProps {
   item: ClipboardItem
   categories: Category[]
-  onClick: (id: number) => void
-  onDelete?: (id: number, e: React.MouseEvent) => void
-  onToggleFavorite?: (id: number, e: React.MouseEvent) => void
-  onTogglePin?: (id: number, e: React.MouseEvent) => void
-  onMoveToCategory?: (itemId: number, categoryId?: number) => void
 }
 
 interface IconButtonProps {
@@ -37,22 +33,16 @@ const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title, className
   return (
     <button
       onClick={onClick}
-      className={`w-5 h-9 sm:w-6 sm:h-10 flex items-center justify-center transition-colors text-[#2c2c2c] opacity-60 hover:opacity-100 cursor-pointer ml-2 ${className}`}
+      className={`w-4 h-9 sm:w-6 sm:h-10 flex items-center justify-center transition-colors text-[#2c2c2c] opacity-60 hover:opacity-100 cursor-pointer ml-2 ${className}`}
       title={title}
     >
       {icon}
     </button>
   )
 }
-export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
-  item,
-  categories,
-  onClick,
-  onDelete,
-  onToggleFavorite: _onToggleFavorite,
-  onTogglePin: _onTogglePin,
-  onMoveToCategory,
-}) => {
+export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({ item, categories }) => {
+  const { handleItemClick, handleDeleteItem, handleTogglePin, handleMoveToCategory } =
+    useClipboardActions()
 
   const getCategoryName = (categoryId?: number): string => {
     if (categoryId === undefined || categoryId === 0) {
@@ -62,18 +52,12 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
     return category?.name || '最新'
   }
 
-  const handleMoveToCategory = (categoryId?: number) => {
-    if (onMoveToCategory) {
-      onMoveToCategory(item.id, categoryId)
-    }
-  }
-
   const getCategoryMenuItems = (): MenuItem[] => {
     const items: MenuItem[] = [
       {
         id: 'default',
         label: '最新',
-        onClick: () => handleMoveToCategory(undefined),
+        onClick: () => handleMoveToCategory(item.id, undefined),
       },
     ]
 
@@ -83,9 +67,28 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
         items.push({
           id: category.id.toString(),
           label: category.name,
-          onClick: () => handleMoveToCategory(category.id),
+          onClick: () => handleMoveToCategory(item.id, category.id),
         })
       })
+
+    return items
+  }
+
+  const getActionMenuItems = (): MenuItem[] => {
+    const items: MenuItem[] = [
+      {
+        id: 'pin',
+        label: item.is_pinned ? '取消置顶' : '置顶',
+        icon: <PinIcon className="w-3 h-3" filled={item.is_pinned} />,
+        onClick: () => handleTogglePin(item.id),
+      },
+      {
+        id: 'delete',
+        label: '删除',
+        icon: <DeleteIcon className="w-3 h-3" />,
+        onClick: () => handleDeleteItem(item.id),
+      },
+    ]
 
     return items
   }
@@ -94,8 +97,11 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
     <div
       className={`group border rounded p-2.5 text-left cursor-pointer transition-colors duration-200 border-gray-100 hover:border-[#2c2c2c]`}
     >
-      <div className="font-medium word-break text-base sm:text-lg text-[#2c2c2c] leading-relaxed line-clamp-2">
-        {item.preview}
+      <div className="flex items-start gap-2">
+        {item.is_pinned && <PinIcon className="w-4 h-4 mt-1.5 shrink-0" filled={true} />}
+        <div className="font-medium word-break text-base sm:text-lg text-[#2c2c2c] leading-relaxed line-clamp-2">
+          {item.preview}
+        </div>
       </div>
 
       <div className="flex items-center justify-between">
@@ -120,17 +126,19 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({
         </div>
 
         <div className="flex space-x-0.5">
-          <IconButton
-            icon={<CopyIcon />}
-            onClick={() => {
-              onClick(item.id)
-            }}
-            title="复制"
-          />
+          <IconButton icon={<CopyIcon />} onClick={() => handleItemClick(item.id)} title="复制" />
 
-          {onDelete && (
-            <IconButton icon={<DeleteIcon />} onClick={e => onDelete(item.id, e)} title="删除" />
-          )}
+          <PopoverMenu>
+            <PopoverMenuTrigger>
+              <button
+                className="w-5 h-9 sm:w-6 sm:h-10 flex items-center justify-center transition-colors text-[#2c2c2c] opacity-60 hover:opacity-100 cursor-pointer ml-2"
+                title="更多操作"
+              >
+                <MoreIcon className="w-3 h-3" />
+              </button>
+            </PopoverMenuTrigger>
+            <PopoverMenuContent items={getActionMenuItems()} />
+          </PopoverMenu>
         </div>
       </div>
     </div>

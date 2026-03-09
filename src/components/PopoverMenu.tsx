@@ -163,12 +163,46 @@ export const PopoverMenuContent: React.FC<PopoverMenuContentProps> = ({
   useEffect(() => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect()
-      setPosition({
-        top: rect.bottom + 4,
-        left: rect.left,
-      })
+      const menuWidth = 120 // 预估菜单宽度
+      const menuHeight = items.length * 36 + 16 // 预估菜单高度（每项约36px + padding）
+      
+      // 获取窗口尺寸
+      const windowWidth = window.innerWidth
+      const windowHeight = window.innerHeight
+      
+      // 计算初始位置
+      let top = rect.bottom + 4
+      let left = rect.left
+      
+      // 检查右边界
+      if (left + menuWidth > windowWidth) {
+        left = windowWidth - menuWidth - 8
+      }
+      
+      // 检查左边界
+      if (left < 8) {
+        left = 8
+      }
+      
+      // 检查下边界
+      if (top + menuHeight > windowHeight) {
+        // 如果下方空间不足，尝试显示在触发器上方
+        top = rect.top - menuHeight - 4
+        
+        // 如果上方空间也不足，则显示在触发器下方但限制高度
+        if (top < 8) {
+          top = Math.max(8, windowHeight - menuHeight - 8)
+        }
+      }
+      
+      // 检查上边界
+      if (top < 8) {
+        top = 8
+      }
+      
+      setPosition({ top, left })
     }
-  }, [triggerRef])
+  }, [triggerRef, items.length])
 
   return (
     <div

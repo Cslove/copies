@@ -1,4 +1,3 @@
-import { useEffect, useCallback } from 'react'
 import { ClipboardItemComponent } from '@/components/ClipboardItem'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { EmptyState } from '@/components/EmptyState'
@@ -7,113 +6,30 @@ import { Header } from '@/components/Header'
 import { Paper } from '@/components/Paper'
 import { Search } from '@/components/Search'
 import { Tabs } from '@/components/Tabs'
-import { useDatabase } from '@/hooks/useDatabase'
-import { useClipboard } from '@/hooks/useClipboard'
-import { useHotkey } from '@/hooks/useHotkey'
+import { useAppData } from '@/hooks/useAppData'
+import { useAppHotkeys } from '@/hooks/useAppHotkeys'
 import { useClipboardStore } from '@/stores/clipboardStore'
-import { mockData } from '@/utils/mockData'
 
 function App() {
   const {
     items,
     filteredItems,
-    activeCategoryId,
     isLoading,
     searchQuery,
     showFavoritesOnly,
     showPinnedOnly,
     categories,
-    setCategories,
-    setItems,
+    activeCategoryId,
     setSearchQuery,
-    deleteItem: storeDeleteItem,
-    updateItem: storeUpdateItem,
-    setLoading,
     setActiveCategory,
   } = useClipboardStore()
 
-  const { loadItems, deleteItem, updateItem, getCategories, moveItemToCategory } = useDatabase()
-  const { pasteItem } = useClipboard()
-  const { onShowPanel, onHidePanel } = useHotkey()
+  const { fetchData } = useAppData()
 
-  const fetchData = useCallback(async () => {
-    const isWebEnv = !window.electronAPI
-
-    if (isWebEnv) {
-      setItems(mockData)
-    } else {
-      const loadedItems = await loadItems()
-      setItems(loadedItems)
-      const cats = await getCategories()
-      setCategories(cats)
-    }
-    setLoading(false)
-  }, [loadItems, setItems, setLoading, getCategories, setCategories])
-
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
-
-  useEffect(() => {
-    const cleanup = onShowPanel(() => {
-      fetchData()
-    })
-    return cleanup
-  }, [onShowPanel, fetchData])
-
-  useEffect(() => {
-    const cleanup = onHidePanel(() => {})
-    return cleanup
-  }, [onHidePanel])
+  useAppHotkeys()
 
   const handleCategoryChange = (categoryId: number | undefined) => {
     setActiveCategory(categoryId)
-  }
-
-  const handleItemClick = async (id: number) => {
-    const success = await pasteItem(id)
-    if (success) {
-      console.log(`Item ${id} pasted successfully`)
-    } else {
-      console.error(`Failed to paste item ${id}`)
-    }
-  }
-
-  const handleDeleteItem = async (id: number, e: React.MouseEvent) => {
-    e.stopPropagation()
-    const success = await deleteItem(id)
-    if (success) {
-      storeDeleteItem(id)
-    }
-  }
-
-  const handleToggleFavorite = async (id: number, e: React.MouseEvent) => {
-    e.stopPropagation()
-    const item = items.find(item => item.id === id)
-    if (item) {
-      const success = await updateItem(id, { is_favorite: !item.is_favorite })
-      if (success) {
-        storeUpdateItem(id, { is_favorite: !item.is_favorite })
-      }
-    }
-  }
-
-  const handleTogglePin = async (id: number, e: React.MouseEvent) => {
-    e.stopPropagation()
-    const item = items.find(item => item.id === id)
-    if (item) {
-      const success = await updateItem(id, { is_pinned: !item.is_pinned })
-      if (success) {
-        storeUpdateItem(id, { is_pinned: !item.is_pinned })
-      }
-    }
-  }
-
-  const handleMoveToCategory = async (itemId: number, categoryId?: number) => {
-    const success = await moveItemToCategory(itemId, categoryId)
-    if (success) {
-      await fetchData()
-    }
   }
 
   const displayItems =
@@ -128,7 +44,7 @@ function App() {
       <Tabs
         onCategoryChange={handleCategoryChange}
         onRefreshData={fetchData}
-        extra={<div className="text-xs text-gray-500">共 {items.length} 项</div>}
+        extra={<div className="text-xs text-gray-500">共 {displayItems.length} 项</div>}
       />
 
       <main className="flex-1 overflow-hidden min-h-0">
@@ -143,11 +59,6 @@ function App() {
                     key={item.id}
                     item={item}
                     categories={categories}
-                    onClick={handleItemClick}
-                    onDelete={handleDeleteItem}
-                    onToggleFavorite={handleToggleFavorite}
-                    onTogglePin={handleTogglePin}
-                    onMoveToCategory={handleMoveToCategory}
                   />
                 ))
               ) : (
