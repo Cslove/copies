@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import type { ClipboardItem, ClipboardStats, Category } from '@/types/index'
 import * as ipc from '@/utils/ipc'
+import { handleError, getErrorMessage } from '@/utils/errorHandler'
 
 export const useDatabase = () => {
   const [items, setItems] = useState<ClipboardItem[]>([])
@@ -27,15 +28,14 @@ export const useDatabase = () => {
 
   const saveItem = useCallback(
     async (content: string): Promise<number | null> => {
+      setError(null)
       try {
-        setError(null)
         const id = await ipc.saveItem(content)
         await loadItems()
         return id
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to save item'
-        setError(errorMessage)
-        console.error('Error saving item:', err)
+        setError(getErrorMessage(err, 'Failed to save item'))
+        handleError(err, 'Error saving item')
         return null
       }
     },
@@ -43,25 +43,24 @@ export const useDatabase = () => {
   )
 
   const deleteItem = useCallback(async (id: number): Promise<boolean> => {
+    setError(null)
     try {
-      setError(null)
       const success = await ipc.deleteItem(id)
       if (success) {
         setItems(prev => prev.filter(item => item.id !== id))
       }
       return success
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete item'
-      setError(errorMessage)
-      console.error('Error deleting item:', err)
+      setError(getErrorMessage(err, 'Failed to delete item'))
+      handleError(err, 'Error deleting item')
       return false
     }
   }, [])
 
   const updateItem = useCallback(
     async (id: number, updates: Partial<ClipboardItem>): Promise<boolean> => {
+      setError(null)
       try {
-        setError(null)
         const success = await ipc.updateItem(id, updates)
         if (success) {
           setItems(prev =>
@@ -72,9 +71,8 @@ export const useDatabase = () => {
         }
         return success
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to update item'
-        setError(errorMessage)
-        console.error('Error updating item:', err)
+        setError(getErrorMessage(err, 'Failed to update item'))
+        handleError(err, 'Error updating item')
         return false
       }
     },
@@ -83,14 +81,13 @@ export const useDatabase = () => {
 
   const searchItems = useCallback(
     async (query: string): Promise<ClipboardItem[]> => {
+      setError(null)
       try {
-        setError(null)
         const results = await ipc.searchItems(query)
         return results
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to search items'
-        setError(errorMessage)
-        console.error('Error searching items:', err)
+        setError(getErrorMessage(err, 'Failed to search items'))
+        handleError(err, 'Error searching items')
         return []
       }
     },
@@ -98,72 +95,67 @@ export const useDatabase = () => {
   )
 
   const getFavorites = useCallback(async (): Promise<ClipboardItem[]> => {
+    setError(null)
     try {
-      setError(null)
       const favorites = await ipc.getFavorites()
       return favorites
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to get favorites'
-      setError(errorMessage)
-      console.error('Error getting favorites:', err)
+      setError(getErrorMessage(err, 'Failed to get favorites'))
+      handleError(err, 'Error getting favorites')
       return []
     }
   }, [])
 
   const getStats = useCallback(async (): Promise<ClipboardStats | null> => {
+    setError(null)
     try {
-      setError(null)
       const stats = await ipc.getStats()
       return stats
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to get stats'
-      setError(errorMessage)
-      console.error('Error getting stats:', err)
+      setError(getErrorMessage(err, 'Failed to get stats'))
+      handleError(err, 'Error getting stats')
       return null
     }
   }, [])
 
   const clearAllItems = useCallback(async (): Promise<boolean> => {
+    setError(null)
     try {
-      setError(null)
       const success = await ipc.clearAllItems()
       if (success) {
         setItems([])
       }
       return success
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to clear items'
-      setError(errorMessage)
-      console.error('Error clearing items:', err)
+      setError(getErrorMessage(err, 'Failed to clear items'))
+      handleError(err, 'Error clearing items')
       return false
     }
   }, [])
 
   const getCategories = useCallback(async (): Promise<Category[]> => {
+    setError(null)
     try {
-      setError(null)
       const cats = await ipc.getCategories()
       setCategories(cats)
       return cats
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to get categories'
-      setError(errorMessage)
-      console.error('Error getting categories:', err)
+      setError(getErrorMessage(err, 'Failed to get categories'))
+      handleError(err, 'Error getting categories')
       return []
     }
   }, [])
 
   const createCategory = useCallback(
     async (name: string): Promise<Category | null> => {
+      setError(null)
       try {
-        setError(null)
         const newCategory = await ipc.createCategory(name)
         await getCategories()
         return newCategory
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to create category'
-        setError(errorMessage)
-        console.error('Error creating category:', err)
+        setError(getErrorMessage(err, 'Failed to create category'))
+        handleError(err, 'Error creating category')
         return null
       }
     },
@@ -172,17 +164,16 @@ export const useDatabase = () => {
 
   const updateCategory = useCallback(
     async (id: number, updates: Partial<Category>): Promise<boolean> => {
+      setError(null)
       try {
-        setError(null)
         const success = await ipc.updateCategory(id, updates)
         if (success) {
           await getCategories()
         }
         return success
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to update category'
-        setError(errorMessage)
-        console.error('Error updating category:', err)
+        setError(getErrorMessage(err, 'Failed to update category'))
+        handleError(err, 'Error updating category')
         return false
       }
     },
@@ -191,8 +182,8 @@ export const useDatabase = () => {
 
   const deleteCategory = useCallback(
     async (id: number): Promise<boolean> => {
+      setError(null)
       try {
-        setError(null)
         const success = await ipc.deleteCategory(id)
         if (success) {
           await getCategories()
@@ -200,9 +191,8 @@ export const useDatabase = () => {
         }
         return success
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to delete category'
-        setError(errorMessage)
-        console.error('Error deleting category:', err)
+        setError(getErrorMessage(err, 'Failed to delete category'))
+        handleError(err, 'Error deleting category')
         return false
       }
     },
@@ -211,14 +201,13 @@ export const useDatabase = () => {
 
   const getItemsByCategory = useCallback(
     async (categoryId?: number): Promise<ClipboardItem[]> => {
+      setError(null)
       try {
-        setError(null)
         const items = await ipc.getItemsByCategory(categoryId)
         return items
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to get items by category'
-        setError(errorMessage)
-        console.error('Error getting items by category:', err)
+        setError(getErrorMessage(err, 'Failed to get items by category'))
+        handleError(err, 'Error getting items by category')
         return []
       }
     },
@@ -227,17 +216,16 @@ export const useDatabase = () => {
 
   const moveItemToCategory = useCallback(
     async (itemId: number, categoryId?: number): Promise<boolean> => {
+      setError(null)
       try {
-        setError(null)
         const success = await ipc.moveItemToCategory(itemId, categoryId)
         if (success) {
           await loadItems()
         }
         return success
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to move item to category'
-        setError(errorMessage)
-        console.error('Error moving item to category:', err)
+        setError(getErrorMessage(err, 'Failed to move item to category'))
+        handleError(err, 'Error moving item to category')
         return false
       }
     },

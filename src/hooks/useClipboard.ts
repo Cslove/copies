@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import * as ipc from '@/utils/ipc'
+import { handleError } from '@/utils/errorHandler'
 
 export const useClipboard = () => {
   const pasteItem = useCallback(async (id: number): Promise<boolean> => {
@@ -10,7 +11,7 @@ export const useClipboard = () => {
       }
       return success
     } catch (err) {
-      console.error('Error pasting item:', err)
+      handleError(err, 'Error pasting item')
       return false
     }
   }, [])

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import type { UpdateInfo, UpdateProgress, UpdateError } from '../../types'
+import { handleError } from '@/utils/errorHandler'
 
 interface UseAutoUpdateReturn {
   updateAvailable: boolean
@@ -36,7 +37,7 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
       setIsDownloading(true)
       await window.electronAPI?.downloadUpdate()
     } catch (error) {
-      console.error('下载更新失败:', error)
+      handleError(error, '下载更新失败')
       setIsDownloading(false)
     }
   }, [])
@@ -53,7 +54,7 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
     try {
       await window.electronAPI?.openUpdateFolder(folderPath)
     } catch (error) {
-      console.error('打开更新文件夹失败:', error)
+      handleError(error, '打开更新文件夹失败')
     }
   }, [])
 

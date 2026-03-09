@@ -1,12 +1,13 @@
 import { useCallback, useEffect } from 'react'
 import * as ipc from '@/utils/ipc'
+import { handleError } from '@/utils/errorHandler'
 
 export const useHotkey = () => {
   const showPanel = useCallback(async () => {
     try {
       await ipc.showPanel()
     } catch (err) {
-      console.error('Error showing panel:', err)
+      handleError(err, 'Error showing panel')
     }
   }, [])
 

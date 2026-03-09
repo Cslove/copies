@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getPlatform } from '@/utils/platform'
+import { handleError } from '@/utils/errorHandler'
 
 interface FooterProps {
   year?: number
@@ -23,7 +24,7 @@ export const Footer: React.FC<FooterProps> = ({ year = new Date().getFullYear() 
         const version = await window.electronAPI?.getAppVersion()
         setAppVersion(version || '')
       } catch (error) {
-        console.error('获取应用版本失败:', error)
+        handleError(error, '获取应用版本失败')
       }
     }
     fetchVersion()
