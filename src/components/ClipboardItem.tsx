@@ -63,7 +63,7 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({ item }) =
     ]
 
     categories
-      .filter((cat: Category) => cat.id !== 0)
+      .filter((cat: Category) => cat.id !== 0 && cat.id !== item.category_id)
       .forEach((category: Category) => {
         items.push({
           id: category.id.toString(),

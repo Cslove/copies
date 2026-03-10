@@ -52,9 +52,13 @@ export const useClipboardActions = () => {
   const handleMoveToCategory = useCallback(async (itemId: number, categoryId?: number) => {
     const success = await moveItemToCategory(itemId, categoryId)
     if (success) {
-      // Refresh data will be handled by parent component
+      // Update the item in the store
+      const item = items.find(item => item.id === itemId)
+      if (item) {
+        storeUpdateItem(itemId, { category_id: categoryId })
+      }
     }
-  }, [moveItemToCategory])
+  }, [moveItemToCategory, items, storeUpdateItem])
 
   return {
     handleItemClick,
