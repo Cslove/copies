@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { PlusIcon, MoreIcon, PinIcon, DeleteIcon, EditIcon } from '@/assets/icons'
 import type { Category } from '@/types/index'
 import { useDatabase } from '@/hooks/useDatabase'
+import { useClipboardStore } from '@/stores/clipboardStore'
 import { PopoverMenu, PopoverMenuTrigger, PopoverMenuContent } from './PopoverMenu'
 
 export interface TabItem {
@@ -25,6 +26,7 @@ export const Tabs: React.FC<TabsProps> = ({
   className = '',
 }) => {
   const { getCategories, createCategory, updateCategory, deleteCategory } = useDatabase()
+  const { setCategories: setStoreCategories } = useClipboardStore()
   const [categories, setCategories] = useState<Category[]>([])
   const [tabs, setTabs] = useState<TabItem[]>([])
   const [activeTab, setActiveTab] = useState('0')
@@ -38,8 +40,9 @@ export const Tabs: React.FC<TabsProps> = ({
   const loadCategories = useCallback(async () => {
     const cats = await getCategories()
     setCategories(cats)
+    setStoreCategories(cats)
     updateTabsFromCategories(cats)
-  }, [getCategories])
+  }, [getCategories, setStoreCategories])
 
   useEffect(() => {
     loadCategories()

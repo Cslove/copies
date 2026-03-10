@@ -12,14 +12,11 @@ import { useClipboardStore } from '@/stores/clipboardStore'
 
 function App() {
   const {
-    items,
     filteredItems,
     isLoading,
     searchQuery,
     showFavoritesOnly,
     showPinnedOnly,
-    categories,
-    activeCategoryId,
     setSearchQuery,
     setActiveCategory,
   } = useClipboardStore()
@@ -54,7 +51,7 @@ function App() {
             <div className="space-y-3 pb-4">
               {displayItems.length > 0 ? (
                 displayItems.map(item => (
-                  <ClipboardItemComponent key={item.id} item={item} categories={categories} />
+                  <ClipboardItemComponent key={item.id} item={item} />
                 ))
               ) : (
                 <EmptyState

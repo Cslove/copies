@@ -2,6 +2,7 @@ import React from 'react'
 import { DeleteIcon, CopyIcon, MoreIcon, PinIcon } from '@/assets/icons'
 import { PopoverMenu, PopoverMenuTrigger, PopoverMenuContent, MenuItem } from './PopoverMenu'
 import { useClipboardActions } from '@/hooks/useClipboardActions'
+import { useClipboardStore } from '@/stores/clipboardStore'
 import type { Category } from '@/types/index'
 
 interface ClipboardItem {
@@ -19,7 +20,6 @@ interface ClipboardItem {
 
 interface ClipboardItemProps {
   item: ClipboardItem
-  categories: Category[]
 }
 
 interface IconButtonProps {
@@ -40,10 +40,11 @@ const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title, className
     </button>
   )
 }
-export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({ item, categories }) => {
+export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({ item }) => {
   const { handleItemClick, handleDeleteItem, handleTogglePin, handleMoveToCategory } =
     useClipboardActions()
 
+  const { categories } = useClipboardStore()
   const getCategoryName = (categoryId?: number): string => {
     if (categoryId === undefined || categoryId === 0) {
       return '最新'
