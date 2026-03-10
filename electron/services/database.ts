@@ -19,7 +19,7 @@ class StorageManager {
     try {
       const userDataPath = app.getPath('userData')
       this.dataPath = `${userDataPath}/clipboard_data.json`
-      
+
       if (!fs.existsSync(userDataPath)) {
         fs.mkdirSync(userDataPath, { recursive: true })
       }
@@ -70,18 +70,19 @@ class StorageManager {
     try {
       const sixHoursAgo = Date.now() - 6 * 60 * 60 * 1000
       const initialLength = this.data.clipboard_items.length
-      this.data.clipboard_items = this.data.clipboard_items.filter(item => 
-        item.is_favorite || 
-        item.is_pinned || 
-        item.category_id !== undefined && item.category_id !== null ||
-        item.updated_at > sixHoursAgo
+      this.data.clipboard_items = this.data.clipboard_items.filter(
+        item =>
+          item.is_favorite ||
+          item.is_pinned ||
+          (item.category_id !== undefined && item.category_id !== null) ||
+          item.updated_at > sixHoursAgo
       )
-      
+
       const cleanedCount = initialLength - this.data.clipboard_items.length
       if (cleanedCount > 0) {
         console.log(`Cleaned up ${cleanedCount} old items from "最新" category`)
       }
-      
+
       fs.writeFileSync(this.dataPath, JSON.stringify(this.data, null, 2), 'utf-8')
     } catch (error) {
       console.error('Error saving data:', error)
@@ -297,7 +298,9 @@ class StorageManager {
       const deleted = this.data.categories.some(cat => cat.id === id)
       if (deleted) {
         this.data.categories = this.data.categories.filter(cat => cat.id !== id)
-        this.data.clipboard_items = this.data.clipboard_items.filter(item => item.category_id !== id)
+        this.data.clipboard_items = this.data.clipboard_items.filter(
+          item => item.category_id !== id
+        )
         this.saveData()
       }
       return deleted
@@ -340,7 +343,7 @@ class StorageManager {
   public async getItemsByCategory(categoryId?: number): Promise<ClipboardItem[]> {
     try {
       let items = this.data.clipboard_items
-      
+
       if (categoryId === undefined) {
         items = items.filter(item => !item.category_id)
       } else {
@@ -450,8 +453,7 @@ class StorageManager {
     return content.substring(0, maxLength) + '...'
   }
 
-  public close(): void {
-  }
+  public close(): void {}
 }
 
 import { registerInstance } from '../utils/ipcProxy'

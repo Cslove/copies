@@ -298,7 +298,6 @@ export const Tabs: React.FC<TabsProps> = ({
 
         {extra && <div className="flex items-center ml-2 shrink-0">{extra}</div>}
       </div>
-
     </div>
   )
 }

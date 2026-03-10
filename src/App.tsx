@@ -32,8 +32,7 @@ function App() {
     setActiveCategory(categoryId)
   }
 
-  const displayItems =
-    searchQuery || showFavoritesOnly || showPinnedOnly || activeCategoryId ? filteredItems : items
+  const displayItems = filteredItems
 
   return (
     <Paper className="w-full">
@@ -55,11 +54,7 @@ function App() {
             <div className="space-y-3 pb-4">
               {displayItems.length > 0 ? (
                 displayItems.map(item => (
-                  <ClipboardItemComponent
-                    key={item.id}
-                    item={item}
-                    categories={categories}
-                  />
+                  <ClipboardItemComponent key={item.id} item={item} categories={categories} />
                 ))
               ) : (
                 <EmptyState

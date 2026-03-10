@@ -125,11 +125,12 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
     const { items, searchQuery, showFavoritesOnly, showPinnedOnly, activeCategoryId } = get()
 
     let filtered = [...items]
-
-    if (activeCategoryId !== undefined) {
-      filtered = filtered.filter(item => item.category_id === activeCategoryId)
+    if (activeCategoryId === undefined || activeCategoryId === 0) {
+      filtered = filtered.filter(
+        item => item.category_id === undefined || item.category_id === null
+      )
     } else {
-      filtered = filtered.filter(item => !item.category_id)
+      filtered = filtered.filter(item => item.category_id === activeCategoryId)
     }
 
     if (searchQuery.trim()) {
@@ -147,6 +148,13 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
     if (showPinnedOnly) {
       filtered = filtered.filter(item => item.is_pinned)
     }
+
+    // Sort items: pinned items first, then by updated_at (newest first)
+    filtered.sort((a, b) => {
+      if (a.is_pinned && !b.is_pinned) return -1
+      if (!a.is_pinned && b.is_pinned) return 1
+      return b.updated_at - a.updated_at
+    })
 
     set({ filteredItems: filtered })
   },
