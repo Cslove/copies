@@ -29,10 +29,9 @@ class HotkeyManager {
     }
 
     if (this.mainWindow.isVisible()) {
-      return
-    } else {
-      this.showPanel()
+      this.mainWindow.hide()
     }
+    this.showPanel()
   }
 
   public showPanel(): void {
