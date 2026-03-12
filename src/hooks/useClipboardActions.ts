@@ -60,11 +60,33 @@ export const useClipboardActions = () => {
     }
   }, [moveItemToCategory, items, storeUpdateItem])
 
+  const handleEditItem = useCallback(async (id: number, newContent: string) => {
+    const item = items.find(item => item.id === id)
+    if (item) {
+      // Generate a simple preview from the new content
+      const preview = newContent.length > 100 
+        ? newContent.substring(0, 100) + '...' 
+        : newContent
+      
+      const success = await dbUpdateItem(id, { 
+        content: newContent,
+        preview: preview
+      })
+      if (success) {
+        storeUpdateItem(id, { 
+          content: newContent,
+          preview: preview
+        })
+      }
+    }
+  }, [items, dbUpdateItem, storeUpdateItem])
+
   return {
     handleItemClick,
     handleDeleteItem,
     handleToggleFavorite,
     handleTogglePin,
     handleMoveToCategory,
+    handleEditItem,
   }
 }

@@ -1,8 +1,9 @@
-import React from 'react'
-import { DeleteIcon, CopyIcon, MoreIcon, PinIcon } from '@/assets/icons'
+import React, { useState } from 'react'
+import { DeleteIcon, CopyIcon, MoreIcon, PinIcon, EditIcon } from '@/assets/icons'
 import { PopoverMenu, PopoverMenuTrigger, PopoverMenuContent, MenuItem } from './PopoverMenu'
 import { useClipboardActions } from '@/hooks/useClipboardActions'
 import { useClipboardStore } from '@/stores/clipboardStore'
+import { EditableContent } from './EditableContent'
 import type { Category } from '@/types/index'
 
 interface ClipboardItem {
@@ -40,11 +41,35 @@ const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title, className
     </button>
   )
 }
+
+interface ItemContainerProps {
+  children: React.ReactNode
+  isClickable?: boolean
+}
+
+const ItemContainer: React.FC<ItemContainerProps> = ({ children, isClickable = true }) => {
+  return (
+    <div
+      className={`group border rounded p-2.5 text-left transition-colors duration-200 border-gray-100 hover:border-[#2c2c2c] ${isClickable ? 'cursor-pointer' : ''}`}
+    >
+      {children}
+    </div>
+  )
+}
+
 export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({ item }) => {
-  const { handleItemClick, handleDeleteItem, handleTogglePin, handleMoveToCategory } =
-    useClipboardActions()
+  const {
+    handleItemClick,
+    handleDeleteItem,
+    handleTogglePin,
+    handleMoveToCategory,
+    handleEditItem,
+  } = useClipboardActions()
+
+  const [isEditing, setIsEditing] = useState(false)
 
   const { categories } = useClipboardStore()
+
   const getCategoryName = (categoryId?: number): string => {
     if (categoryId === undefined || categoryId === 0) {
       return '最新'
@@ -78,6 +103,12 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({ item }) =
   const getActionMenuItems = (): MenuItem[] => {
     const items: MenuItem[] = [
       {
+        id: 'edit',
+        label: '编辑',
+        icon: <EditIcon className="w-3 h-3" />,
+        onClick: () => setIsEditing(true),
+      },
+      {
         id: 'pin',
         label: item.is_pinned ? '取消置顶' : '置顶',
         icon: <PinIcon className="w-3 h-3" filled={item.is_pinned} />,
@@ -94,10 +125,36 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({ item }) =
     return items
   }
 
+  const handleSaveEdit = async (newContent: string) => {
+    if (newContent.trim() && newContent !== item.content) {
+      await handleEditItem(item.id, newContent)
+    }
+    setIsEditing(false)
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+  }
+
+  if (isEditing) {
+    return (
+      <ItemContainer isClickable={false}>
+        <div className="flex items-start gap-2">
+          {item.is_pinned && <PinIcon className="w-4 h-4 mt-1.5 shrink-0" filled={true} />}
+          <div className="flex-1">
+            <EditableContent
+              content={item.content}
+              onSave={handleSaveEdit}
+              onCancel={handleCancelEdit}
+            />
+          </div>
+        </div>
+      </ItemContainer>
+    )
+  }
+
   return (
-    <div
-      className={`group border rounded p-2.5 text-left cursor-pointer transition-colors duration-200 border-gray-100 hover:border-[#2c2c2c]`}
-    >
+    <ItemContainer>
       <div className="flex items-start gap-2">
         {item.is_pinned && <PinIcon className="w-4 h-4 mt-1.5 shrink-0" filled={true} />}
         <div className="font-medium word-break text-base sm:text-lg text-[#2c2c2c] leading-relaxed line-clamp-2">
@@ -142,6 +199,6 @@ export const ClipboardItemComponent: React.FC<ClipboardItemProps> = ({ item }) =
           </PopoverMenu>
         </div>
       </div>
-    </div>
+    </ItemContainer>
   )
 }
