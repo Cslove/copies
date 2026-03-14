@@ -4,6 +4,7 @@ import * as fs from 'fs'
 class TrayManager {
   private tray: Tray | null = null
   private notificationWindow: BrowserWindow | null = null
+  private notificationTimeout: NodeJS.Timeout | null = null
 
   public createTray(): void {
     if (this.tray) {
@@ -12,7 +13,7 @@ class TrayManager {
 
     try {
       let iconPath = app.isPackaged
-        ? `${process.resourcesPath}/build/icon.png`
+        ? `${process.resourcesPath}/icon.png`
         : `${process.cwd()}/build/icon.png`
 
       let icon: NativeImage
@@ -21,7 +22,7 @@ class TrayManager {
         icon = nativeImage.createFromPath(iconPath)
       } else {
         const icnsPath = app.isPackaged
-          ? `${process.resourcesPath}/build/icon.icns`
+          ? `${process.resourcesPath}/icon.icns`
           : `${process.cwd()}/build/icon.icns`
 
         icon = nativeImage.createFromPath(icnsPath)
@@ -90,14 +91,19 @@ class TrayManager {
   public showClipboardNotification(): void {
     if (!this.tray) return
 
+    if (this.notificationTimeout) {
+      return
+    }
+
     shell.beep()
     this.tray.setTitle('✔︎')
 
-    setTimeout(() => {
+    this.notificationTimeout = setTimeout(() => {
       if (this.tray) {
         this.tray.setTitle('')
       }
-    }, 3000)
+      this.notificationTimeout = null
+    }, 2000)
   }
 }
 
