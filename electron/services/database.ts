@@ -19,7 +19,7 @@ class StorageManager {
     try {
       const userDataPath = app.getPath('userData')
       this.dataPath = `${userDataPath}/clipboard_data.json`
-
+      console.log('StorageManager data path:', this.dataPath)
       if (!fs.existsSync(userDataPath)) {
         fs.mkdirSync(userDataPath, { recursive: true })
       }
@@ -66,23 +66,28 @@ class StorageManager {
     }
   }
 
+  private cleanExpiredItems(): number {
+    const sixHoursAgo = Date.now() - 6 * 60 * 60 * 1000
+    const initialLength = this.data.clipboard_items.length
+    this.data.clipboard_items = this.data.clipboard_items.filter(
+      item =>
+        item.is_favorite ||
+        item.is_pinned ||
+        (item.category_id !== undefined && item.category_id !== null) ||
+        item.updated_at > sixHoursAgo
+    )
+
+    const cleanedCount = initialLength - this.data.clipboard_items.length
+    if (cleanedCount > 0) {
+      console.log(`Cleaned up ${cleanedCount} old items from "最新" category`)
+    }
+
+    return cleanedCount
+  }
+
   private saveData(): void {
     try {
-      const sixHoursAgo = Date.now() - 6 * 60 * 60 * 1000
-      const initialLength = this.data.clipboard_items.length
-      this.data.clipboard_items = this.data.clipboard_items.filter(
-        item =>
-          item.is_favorite ||
-          item.is_pinned ||
-          (item.category_id !== undefined && item.category_id !== null) ||
-          item.updated_at > sixHoursAgo
-      )
-
-      const cleanedCount = initialLength - this.data.clipboard_items.length
-      if (cleanedCount > 0) {
-        console.log(`Cleaned up ${cleanedCount} old items from "最新" category`)
-      }
-
+      this.cleanExpiredItems()
       fs.writeFileSync(this.dataPath, JSON.stringify(this.data, null, 2), 'utf-8')
     } catch (error) {
       console.error('Error saving data:', error)
@@ -141,6 +146,11 @@ class StorageManager {
   @expose('StorageManager')
   public async getItems(): Promise<ClipboardItem[]> {
     try {
+      const cleanedCount = this.cleanExpiredItems()
+      if (cleanedCount > 0) {
+        this.saveData()
+      }
+
       const sortedItems = [...this.data.clipboard_items].sort((a, b) => {
         if (a.is_pinned !== b.is_pinned) {
           return b.is_pinned ? 1 : -1

@@ -28,7 +28,7 @@ function createWindow() {
     maxHeight: 700,
     resizable: true,
     frame: false,
-    alwaysOnTop: true,
+    alwaysOnTop: false,
     skipTaskbar: false,
     show: true,
     icon: iconPath,
