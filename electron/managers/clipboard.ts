@@ -1,5 +1,6 @@
 import { clipboard } from 'electron'
 import { storageManager } from '../services/database'
+import { trayManager } from './tray'
 
 class ClipboardManager {
   private watching: boolean = false
@@ -19,6 +20,7 @@ class ClipboardManager {
           this.onChangeCallback(content)
         }
         storageManager.saveItem(content)
+        trayManager.showClipboardNotification()
       }
     }, 500)
   }

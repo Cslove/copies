@@ -1,5 +1,6 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { clipboardManager } from '../managers/clipboard'
+import { trayManager } from '../managers/tray'
 import { storageManager } from '../services/database'
 
 export function registerClipboardHandlers(mainWindow: BrowserWindow | null) {
@@ -8,6 +9,7 @@ export function registerClipboardHandlers(mainWindow: BrowserWindow | null) {
     if (item) {
       clipboardManager.writeToClipboard(item.content)
       await storageManager.updateItem(id, { used_count: item.used_count + 1 })
+      trayManager.showClipboardNotification()
       return true
     }
     return false

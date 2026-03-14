@@ -1,8 +1,9 @@
-import { Tray, Menu, app, nativeImage, NativeImage } from 'electron'
+import { Tray, Menu, app, nativeImage, NativeImage, BrowserWindow, shell } from 'electron'
 import * as fs from 'fs'
 
 class TrayManager {
   private tray: Tray | null = null
+  private notificationWindow: BrowserWindow | null = null
 
   public createTray(): void {
     if (this.tray) {
@@ -22,7 +23,7 @@ class TrayManager {
         const icnsPath = app.isPackaged
           ? `${process.resourcesPath}/build/icon.icns`
           : `${process.cwd()}/build/icon.icns`
-        
+
         icon = nativeImage.createFromPath(icnsPath)
       }
 
@@ -31,7 +32,7 @@ class TrayManager {
         if (icon.getSize().width > standardSize || icon.getSize().height > standardSize) {
           icon = icon.resize({ width: standardSize, height: standardSize })
         }
-        
+
         icon.setTemplateImage(true)
       }
 
@@ -50,7 +51,7 @@ class TrayManager {
 
     const contextMenu = Menu.buildFromTemplate([
       {
-        label: '打开',
+        label: '打开 Copies',
         click: () => {
           console.log('Open clicked')
         },
@@ -76,10 +77,27 @@ class TrayManager {
   }
 
   public destroyTray(): void {
+    if (this.notificationWindow) {
+      this.notificationWindow.close()
+      this.notificationWindow = null
+    }
     if (this.tray) {
       this.tray.destroy()
       this.tray = null
     }
+  }
+
+  public showClipboardNotification(): void {
+    if (!this.tray) return
+
+    shell.beep()
+    this.tray.setTitle('✔︎')
+
+    setTimeout(() => {
+      if (this.tray) {
+        this.tray.setTitle('')
+      }
+    }, 3000)
   }
 }
 
