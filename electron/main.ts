@@ -3,6 +3,7 @@ import * as path from 'path'
 import { fileURLToPath } from 'url'
 import { clipboardManager } from './managers/clipboard'
 import { hotkeyManager } from './managers/hotkey'
+import { trayManager } from './managers/tray'
 import { storageManager } from './services/database'
 import { registerAllHandlers, setupAllEventListeners } from './handlers'
 
@@ -57,6 +58,7 @@ app.whenReady().then(() => {
   createWindow()
   clipboardManager.startWatching()
   hotkeyManager.registerGlobalShortcuts(mainWindow)
+  trayManager.createTray()
 
   registerAllHandlers(mainWindow)
 
@@ -79,6 +81,7 @@ app.whenReady().then(() => {
 app.on('will-quit', () => {
   globalShortcut.unregisterAll()
   clipboardManager.stopWatching()
+  trayManager.destroyTray()
   storageManager.close()
 })
 
