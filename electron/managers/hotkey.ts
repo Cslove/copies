@@ -22,7 +22,7 @@ class HotkeyManager {
     }
   }
 
-  private togglePanel(): void {
+  public togglePanel(): void {
     if (!this.mainWindow) {
       console.warn('Main window not available')
       return

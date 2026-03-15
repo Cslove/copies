@@ -1,5 +1,6 @@
 import { Tray, Menu, app, nativeImage, NativeImage, BrowserWindow, shell } from 'electron'
 import * as fs from 'fs'
+import { hotkeyManager } from './hotkey'
 
 class TrayManager {
   private tray: Tray | null = null
@@ -52,17 +53,17 @@ class TrayManager {
 
     const contextMenu = Menu.buildFromTemplate([
       {
-        label: '打开 Copies',
+        label: `打开 Copies`,
         click: () => {
-          console.log('Open clicked')
+          hotkeyManager.togglePanel()
         },
       },
-      {
-        label: '设置',
-        click: () => {
-          console.log('Settings clicked')
-        },
-      },
+      // {
+      //   label: '设置',
+      //   click: () => {
+      //     console.log('Settings clicked')
+      //   },
+      // },
       {
         type: 'separator',
       },
