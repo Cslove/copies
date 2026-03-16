@@ -11,7 +11,9 @@
 
 ## ✨ 功能特性
 
-![应用截图](./src/assets/image.png)
+<div align="center">
+  <img src="./src/assets/image.png" alt="应用截图" width="33%">
+</div>
 
 - **自动监听剪贴板** - 实时捕获系统剪贴板内容，自动保存历史记录
 - **快捷键唤起** - 使用 `Cmd+Option+V`（Mac）或 `Ctrl+Alt+V`（Windows）**在任意位置快速打开面板**，无需切换应用
